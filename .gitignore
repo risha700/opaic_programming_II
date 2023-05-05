@@ -19,7 +19,7 @@ mono_crash.*
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
-# !bin/Release/CalculatorApp.zip
+!bin/Release/CalculatorApp.zip
 [Rr]elease/
 [Rr]eleases/
 
