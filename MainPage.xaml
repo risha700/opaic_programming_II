@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:calculatorapp="clr-namespace:CalculatorApp"
+             x:DataType="calculatorapp:MainPage"
+             x:Class="CalculatorApp.MainPage"
+             
+             >
+       <Grid Padding="30" RowDefinitions="auto,25,100" ColumnDefinitions="*" ColumnSpacing="20" RowSpacing="10" BackgroundColor="#f7f7f7">
+        
+        <FlexLayout Grid.Row="0" Grid.Column="0" Direction="Row" JustifyContent="SpaceBetween" Wrap="NoWrap"  AlignItems="Start">
+            <StackLayout  HeightRequest="150" WidthRequest="300" Padding="10" Margin="10" >
+                    <Entry x:Name="fnum" MinimumHeightRequest="60" Margin="10"
+                           FontSize="32" Keyboard="Numeric" TextChanged="ValidateInput"
+                           MaxLength="10" TextColor="Black"  BackgroundColor="White"/>
+                    <Entry x:Name="snum" MinimumHeightRequest="60" Margin="10"
+                           FontSize="32 " TextColor="Black"  BackgroundColor="White"
+                           Keyboard="Numeric" TextChanged="ValidateInput" MaxLength="10" />
+                
+            </StackLayout>
+            <StackLayout HeightRequest="150" WidthRequest="500" Margin="0,20,30,0" >
+                <FlexLayout JustifyContent="SpaceBetween"  >
+                    <Button Text="+" x:Name="plus" Grid.ColumnSpan="1"  Clicked="ButtonClicked"
+                            BorderColor="Gray" BorderWidth="1" FontSize="32" TextColor="Black" WidthRequest="70" CornerRadius="1"/>
+                    <Button Text="-" x:Name="minus" Grid.ColumnSpan="1" Clicked="ButtonClicked"
+                            FontSize="32" BorderColor="Gray" BorderWidth="1" TextColor="Black" WidthRequest="70" CornerRadius="1" />
+                    <Button Text="x" x:Name="multiply" Grid.ColumnSpan="1"  Clicked="ButtonClicked"
+                            FontSize="32" BorderColor="Gray" BorderWidth="1" TextColor="Black" WidthRequest="70" CornerRadius="1"/>
+                    <Button Text="/" x:Name="divide" Grid.ColumnSpan="1" Clicked="ButtonClicked"
+                             FontSize="32" BorderColor="Gray" BorderWidth="1" TextColor="Black"  WidthRequest="70" CornerRadius="1" />
+                </FlexLayout>
+   
+            </StackLayout>
+            
+        </FlexLayout>
+         <Frame Grid.Row="1" Grid.Column="0" BorderColor="Black"  HeightRequest="2"/>
+        <FlexLayout Direction="Row" Grid.Row="2" Grid.Column="0" JustifyContent="SpaceBetween" AlignItems="Center"  Padding="10" Margin="20,0,0,0">
+            <Entry x:Name="sum" MinimumHeightRequest="60" Margin="10" TextColor="Black"  BackgroundColor="White"
+                   WidthRequest="270" FontSize="32" IsReadOnly="True"/>
+            <Button Text="Clear"  x:Name="clearBtn" Grid.Column="2" FontSize="32" BorderColor="Gray" BorderWidth="1"
+                     TextColor="Black" WidthRequest="110" Margin="0,0,80,0" Clicked="ClearAll" CornerRadius="1"  />
+        </FlexLayout>
+           
+        
+        </Grid>
+
+    
+
+</ContentPage>
