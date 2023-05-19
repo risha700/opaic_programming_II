@@ -20,6 +20,8 @@ public partial class MainPage : ContentPage
         Label balanceLable = new Label {  };
         Label prizeBox = new Label { Text = "Match 3 drawings to win $50" };
         Label resultLabel = new Label { };
+        Frame resultFrame = new Frame { Content = resultLabel };
+        
         Button spinBtn = new Button { Text = "Spin it", HeightRequest = 80, WidthRequest = 200, Margin = new(0, 100, 0, 0) };
 
         betLabel.SetBinding(Label.TextProperty, new Binding("Bet", stringFormat: "Your bet is {0:C}", source: vm.Game, mode: BindingMode.OneTime));
@@ -34,14 +36,27 @@ public partial class MainPage : ContentPage
             VerticalOptions = LayoutOptions.Start,
             HorizontalOptions = LayoutOptions.Center,
 			Children = {
-                new StackLayout
+
+                new HorizontalStackLayout
                 {
-                        Children = { betLabel, balanceLable, prizeBox,resultLabel },
-                        Spacing = 30,
-                        Padding = 50,
+                    Children =
+                    {
+                        new StackLayout
+                        {
+                                Children = { betLabel, balanceLable, prizeBox },
+                                Spacing = 30,
+                                Padding = 50,
 
 
+                        },
+                        new StackLayout{
+                            Children = {resultLabel },
+                            HorizontalOptions = LayoutOptions.End,
+                            VerticalOptions = LayoutOptions.Center,
+                        },
+                    }
                 },
+            
                 new CollectionView
                 {
                     ItemsSource = vm.Game.SoltImages,

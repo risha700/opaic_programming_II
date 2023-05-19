@@ -62,6 +62,7 @@
 	  <None Remove="ViewModels\" />
 	  <None Remove="Resources\AppIcon\jackpot.svg" />
 	  <None Remove="Resources\AppIcon\lucky_seven.svg" />
+
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Models\" />
@@ -70,5 +71,7 @@
 	<ItemGroup>
 	  <BundleResource Include="Resources\AppIcon\jackpot.svg" />
 	  
+
+	 
 	</ItemGroup>
 </Project>

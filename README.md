@@ -19,7 +19,7 @@ Assignment As Problem:
 
 # Class Diagram
 
-![](./Models/generatedPuml/Spinner\ Diagram.png)
+![](./spinner_diagram.png)
 
 ---
 # Build and run
