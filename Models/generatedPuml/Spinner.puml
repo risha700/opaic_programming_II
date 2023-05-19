@@ -1,0 +1,17 @@
+@startuml
+class Spinner {
+    + Balance : uint <<get>> <<set>>
+    + Bet : uint <<get>> <<set>>
+    + Score : double <<get>> <<set>>
+    + IsWinner : bool <<get>> <<set>>
+    + Spinner()
+    + LoadResources() : void
+    + CheckWinner() : void
+    + PayOut() : void
+    + CollectBet() : void
+}
+class "ObservableCollection`1"<T> {
+}
+Spinner --> "SoltImages<Image>" "ObservableCollection`1"
+Spinner --> "OriginalImages<Image>" "ObservableCollection`1"
+@enduml

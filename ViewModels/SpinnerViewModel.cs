@@ -19,8 +19,8 @@ public partial class SpinnerViewModel:ObservableObject
     [NotifyPropertyChangedFor(nameof(Game))]
     public double balance;
 
-
-    public bool canSpin => Game.Balance >= Game.Bet;
+    
+    public bool CanSpin => Balance >= Game.Bet;
 
     [ObservableProperty]
     public string resultMessage;
@@ -40,32 +40,46 @@ public partial class SpinnerViewModel:ObservableObject
     {
         ResultMessage = "";
         IsButtonEnabled = false;
+        
 
-        if (canSpin) {
+        if (CanSpin) {
             Balance -= Game.Bet;
-            await MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                List<Image> temp = BuildImgArr();
-
-                await DoSpin(temp);
-
-                Game.CheckWinner();
-                ResultMessage = Game.IsWinner ? "You Won" : "You lost";
-
-                if (Game.IsWinner)
+            //await MainThread.InvokeOnMainThreadAsync(async () => { 
+                await Task.Run(async () => //better performance
                 {
-                    Balance += 50;
-                    await Shell.Current.DisplayAlert("WINNER", "YOU GOT $50", "OK");
-                }
+                    List<Image> temp = BuildImgArr();
 
-            }); // end thread async
+                    await DoSpin(temp);
+                    Game.CheckWinner();
+                    ResultMessage = Game.IsWinner ? "You Won" : "You lost";
+
+                    if (Game.IsWinner)
+                    {
+                        await MainThread.InvokeOnMainThreadAsync(async () => {
+                            Balance += 50;
+                            await Shell.Current.DisplayAlert("WINNER", "YOU GOT $50", "OK");
+                        });
+                    }
+                    
+                });
+            //}); // end thread async
+            await Task.CompletedTask;
         }
         else
         {
-            await Shell.Current.DisplayAlert("Hmmmmm", "You are broke dude!", "Restart Game");
+            
+            bool answer = await Shell.Current.DisplayAlert("Hmmmmm", "You are broke dude!", "Restart Game", "Quit");
+            if (answer)
+            {
+                    Balance += Game.Bet;   
+            }
+
         }
-        
+
         IsButtonEnabled = true;
+
+
+
     }
 
     private async Task DoSpin(List<Image> temp)
@@ -79,6 +93,7 @@ public partial class SpinnerViewModel:ObservableObject
             Game.SoltImages[2] = temp[i + 2];
             await Task.Delay(100);
         }
+        await Task.CompletedTask;
     }
 
     private List<Image> BuildImgArr()

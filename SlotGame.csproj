@@ -35,8 +35,8 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<!-- App Icon -->
-		<!--<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />-->
-		<MauiIcon Include="Resources\Images\jackpot.png" Color="#512BD4" />
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#512BD4" />
+		
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 
@@ -60,9 +60,15 @@
 	<ItemGroup>
 	  <None Remove="Models\" />
 	  <None Remove="ViewModels\" />
+	  <None Remove="Resources\AppIcon\jackpot.svg" />
+	  <None Remove="Resources\AppIcon\lucky_seven.svg" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Models\" />
 	  <Folder Include="ViewModels\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <BundleResource Include="Resources\AppIcon\jackpot.svg" />
+	  
 	</ItemGroup>
 </Project>
