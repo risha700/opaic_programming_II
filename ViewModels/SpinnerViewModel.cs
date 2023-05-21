@@ -9,18 +9,18 @@ public partial class SpinnerViewModel:ObservableObject
 {
     [ObservableProperty]
     public bool isButtonEnabled;
-    
+
 
     [ObservableProperty]
     public static Spinner game;
 
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Game))]
-    public double balance;
+    //[ObservableProperty]
+    //[NotifyPropertyChangedFor(nameof(Game))]
+    //public double balance;
 
     
-    public bool CanSpin => Balance >= Game.Bet;
+    public bool CanSpin => Game.Balance >= Game.Bet;
 
     [ObservableProperty]
     public string resultMessage;
@@ -30,8 +30,7 @@ public partial class SpinnerViewModel:ObservableObject
 	{
         Game = new();
         IsButtonEnabled = true;
-        
-        Balance = Game.Balance;
+        //Balance = Game.Balance;
     }
 
     private void RestartGame() => Game = new();
@@ -43,9 +42,10 @@ public partial class SpinnerViewModel:ObservableObject
         
 
         if (CanSpin) {
-            Balance -= Game.Bet;
+            
+            Game.CollectBet();
             //await MainThread.InvokeOnMainThreadAsync(async () => { 
-                await Task.Run(async () => //better performance
+            await Task.Run(async () => //better performance
                 {
                     List<Image> temp = BuildImgArr();
 
@@ -56,7 +56,8 @@ public partial class SpinnerViewModel:ObservableObject
                     if (Game.IsWinner)
                     {
                         await MainThread.InvokeOnMainThreadAsync(async () => {
-                            Balance += 50;
+                            
+                            Game.PayOut();
                             await Shell.Current.DisplayAlert("WINNER", "YOU GOT $50", "OK");
                         });
                     }
@@ -71,7 +72,7 @@ public partial class SpinnerViewModel:ObservableObject
             bool answer = await Shell.Current.DisplayAlert("Hmmmmm", "You are broke dude!", "Restart Game", "Quit");
             if (answer)
             {
-                    Balance += Game.Bet;   
+                    Game.Balance += Game.Bet;   
             }
 
         }

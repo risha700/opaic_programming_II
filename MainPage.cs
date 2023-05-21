@@ -25,7 +25,7 @@ public partial class MainPage : ContentPage
         Button spinBtn = new Button { Text = "Spin it", HeightRequest = 80, WidthRequest = 200, Margin = new(0, 100, 0, 0) };
 
         betLabel.SetBinding(Label.TextProperty, new Binding("Bet", stringFormat: "Your bet is {0:C}", source: vm.Game, mode: BindingMode.OneTime));
-        balanceLable.SetBinding(Label.TextProperty, new Binding("Balance", stringFormat: "Your Balance is {0:C}", source: vm, mode: BindingMode.OneWay));
+        balanceLable.SetBinding(Label.TextProperty, new Binding("Balance", stringFormat: "Your Balance is {0:C}", source: vm.Game, mode: BindingMode.OneWay));
         resultLabel.SetBinding(Label.TextProperty, new Binding("ResultMessage", mode: BindingMode.OneWay));
         spinBtn.SetBinding(IsEnabledProperty, new Binding("IsButtonEnabled", mode: BindingMode.TwoWay));
 

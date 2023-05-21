@@ -4,20 +4,27 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SlotGame.Models;
 
-public class Spinner
+public class Spinner: ObservableObject
 {
 
     public ObservableCollection<Image> SoltImages { get; set; }
     public ObservableCollection<Image> OriginalImages { get; private set; }
-    public uint Balance { get; set; }
+
+    
     public uint Bet { get; set; }
     public double Score { get; set; }
     public bool IsWinner { get; set; }
 
+    private uint balance;
+
+    public uint Balance {
+        get => balance;
+        set => SetProperty(ref balance, value);
+    }
 
     public Spinner()
     {
-
+        
         LoadResources();
         Bet = 10; //original bet
         Balance = 200; // opening balance
