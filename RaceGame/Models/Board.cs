@@ -17,13 +17,15 @@ namespace RaceGame.Models
 
 		public Board(double? width=null, double? height = null)
 		{
-			// set board bounds
-			Width = width?? DeviceDisplay.Current.MainDisplayInfo.Width;
-			Height = height?? DeviceDisplay.Current.MainDisplayInfo.Height;
+            // set board bounds
+            //Width = width?? DeviceDisplay.Current.MainDisplayInfo.Width;
+            //Height = height?? DeviceDisplay.Current.MainDisplayInfo.Height;
+            Width = width?? Shell.Current.Window.Width;
+			Height = height ?? Shell.Current.Window.Height;
 
 		}
 
-		~Board()
+        ~Board()
 		{
 			gametimer.Dispose();
 		}

@@ -9,17 +9,21 @@ public class Horse: ObservableObject
 	public Coordinates Cords { get; set; }
 	public Image Img { get; set; }
 
-	private double speed;
+    private TimeSpan remainingTime;
+    public TimeSpan RemainingTime { get => remainingTime; set => SetProperty(ref remainingTime, value); }
+
+    private double speed=0;
 	public double Speed { get=>speed; set=>SetProperty(ref speed, value); }
 
-	public Horse()
+
+    public Horse()
 	{
 
 	}
 
     public override string ToString()
     {
-        return Name;
+        return $"{this.Name.ToString()}\t{this.Speed.ToString()}";
     }
 }
 

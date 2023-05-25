@@ -14,7 +14,13 @@ public partial class MainViewModel:ObservableObject
     [ObservableProperty]
     public Board gameBoard;
 
+
+    //[ObservableProperty]
+    //public TimeSpan remainingTime;
+
+
     public ObservableCollection<Horse> Horses=new();
+
 
     [ObservableProperty]
     public Horse selectedHorse;
@@ -44,6 +50,7 @@ public partial class MainViewModel:ObservableObject
         //Horses = new();
         LoadHorses();
 
+        
     }
 
     private void LoadHorses()
@@ -52,13 +59,30 @@ public partial class MainViewModel:ObservableObject
 
         HorsesNames.ForEach(horseName =>
         {
-            Horses.Add(new Horse
+            var horse = new Horse
             {
                 Name = horseName,
                 Img = new Image { Source = $"{horseName}.jpg" },
+                Speed = 0
 
-            });
+            };
+            Horses.Add(horse);
+            
         });
+    }
+
+    public async Task animateSeconds(Horse horse)
+    {
+        await Task.CompletedTask;
+        //horse.RemainingTime = TimeSpan.FromMilliseconds(horse.Speed);
+        horse.RemainingTime = TimeSpan.FromMilliseconds(0);
+
+        while (horse.RemainingTime.TotalMilliseconds < horse.Speed)
+        {
+            horse.RemainingTime += TimeSpan.FromMilliseconds(100);
+            await Task.Delay(100);
+        }
+
     }
 }
 
