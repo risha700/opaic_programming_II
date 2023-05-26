@@ -2,6 +2,7 @@
 using System.Threading;
 using CommunityToolkit.Maui.Animations;
 using CommunityToolkit.Maui.Behaviors;
+using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Shapes;
 using RaceGame.Models;
@@ -16,7 +17,7 @@ public class MainPage : ContentPage
 
     // page elements
     
-    Button raceBtn = new Button { Text = "Start Race", HeightRequest = 80, WidthRequest = 200 };
+    Button raceBtn = new Button { Text = "Start Race", HeightRequest = 80, WidthRequest = 200 , FontAttributes=FontAttributes.Bold};
 
     
     AbsoluteLayout endLine = new AbsoluteLayout {
@@ -49,7 +50,16 @@ public class MainPage : ContentPage
         var resultList = new ListView { ItemsSource = vm.Horses , ItemTemplate = new DataTemplate(() =>
         {
             var resultText = new Label { FontSize = 20, };
-            resultText.SetBinding(Label.TextProperty, new Binding("Name"));
+            resultText.SetBinding(Label.TextProperty, new Binding("Name", stringFormat: "{0}"));
+        //    resultText.SetBinding(Label.TextProperty, new Binding("Name", stringFormat: "{0}",
+        //        converter:(IValueConverter)  (value, targetType, parameter, culture)=>{
+        //            if (value is string text)
+        //    {
+        //        return text.ToUpper();
+        //    }
+        //    return value;
+        //}));
+
             var animatedResultSpeed = new Label { FontSize = 20, };
             animatedResultSpeed.SetBinding(Label.TextProperty, new Binding("RemainingTime", stringFormat: "{0:ss\\:ff}"));
 
