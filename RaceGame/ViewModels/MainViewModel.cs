@@ -6,17 +6,12 @@ using RaceGame.Models;
 
 namespace RaceGame.ViewModels;
 
-public partial class MainViewModel:ObservableObject
+public partial class MainViewModel:BaseViewModel
 {
-    //[ObservableProperty]
-    //public Coordinates coordinates;
+
 
     [ObservableProperty]
     public Board gameBoard;
-
-
-    //[ObservableProperty]
-    //public TimeSpan remainingTime;
 
 
     public ObservableCollection<Horse> Horses=new();
@@ -29,32 +24,16 @@ public partial class MainViewModel:ObservableObject
     public MainViewModel(Coordinates coordinates)
 	{
         // create board
-        
         GameBoard = new();
-        //GameBoard.GameTimer
-
-        // get width and height
-
-        // assign endpoint todo: simply width of gameboard
-
-        // create list of horses
-
-
-        //LoadHorses();
-        // add Horses to collection or list view
-
-
-        // assign random speed to endpoint
-
-        //Coordinates = coordinates;
-        //Horses = new();
         LoadHorses();
-
         
     }
 
     private void LoadHorses()
     {
+
+        //Horses.Clear();
+        
         List<string> HorsesNames = new List<string>() { "daffy", "pepe", "taz", "wiley" };
 
         HorsesNames.ForEach(horseName =>
@@ -62,10 +41,12 @@ public partial class MainViewModel:ObservableObject
             var horse = new Horse
             {
                 Name = horseName,
-                Img = new Image { Source = $"{horseName}.jpg" },
+                Img = new Image { Source = $"{horseName}.jpg", Aspect = Aspect.AspectFill, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center, WidthRequest = 50, HeightRequest = 50 },
                 Speed = 0
 
             };
+
+            
             Horses.Add(horse);
             
         });
@@ -73,15 +54,24 @@ public partial class MainViewModel:ObservableObject
 
     public async Task animateSeconds(Horse horse)
     {
-        await Task.CompletedTask;
-        //horse.RemainingTime = TimeSpan.FromMilliseconds(horse.Speed);
-        horse.RemainingTime = TimeSpan.FromMilliseconds(0);
 
+        await Task.CompletedTask;
+        horse.RemainingTime = TimeSpan.FromMilliseconds(0);
         while (horse.RemainingTime.TotalMilliseconds < horse.Speed)
         {
             horse.RemainingTime += TimeSpan.FromMilliseconds(100);
             await Task.Delay(100);
         }
+
+    }
+
+    public void RestartGame()
+    {
+
+        Horses.Clear();
+        LoadHorses();
+        SelectedHorse = null;
+        
 
     }
 }
