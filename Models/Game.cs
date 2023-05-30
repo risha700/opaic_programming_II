@@ -20,6 +20,8 @@ public class Game
 	
 	public System.Timers.Timer GameTimer { get; set; }
 
+    public RectF CanvasDirtyRect { get; set; }
+
     public GraphicsView GameCanvasView { get; set; }
 
     public PlatformCanvas GameCanvas { get; set; }
@@ -33,7 +35,9 @@ public class Game
         Level = level;
         // create canvas view
         GameCanvasView = new GraphicsView { HeightRequest = Shell.Current.Window.Height, WidthRequest = Shell.Current.Window.Width };
-
+        //Shell.Current.Window.Page.on
+        //GameCanvasView.Handler += new IViewHandler( (object sender, EventArgs e) => { });
+        //.HandlerChanged += new EventHandler((object sender, EventArgs e) => { Console.WriteLine($"event called {e}"); });
         SetupCanvas();
 
         
@@ -66,6 +70,7 @@ public class Game
         // hook event
         //Console.WriteLine($"GameCanvasView.Bounds : {GameCanvasView.Bounds}");
         GameCanvasView.DragInteraction += OnDragAction;
+        
         //Canvas.Invalidate();
         GameCanvas = canvasDrawable.GetGameCanvas();
         

@@ -63,6 +63,8 @@
 	  <None Remove="Views\" />
 	  <None Remove="ViewModels\" />
 	  <None Remove="GameDrawables\" />
+	  <None Remove="screenshots\" />
+
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Models\" />
@@ -70,4 +72,5 @@
 	  <Folder Include="ViewModels\" />
 	  <Folder Include="GameDrawables\" />
 	</ItemGroup>
+
 </Project>

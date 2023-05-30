@@ -13,6 +13,7 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
     private readonly uint RectWidth = 200;
     private readonly uint BallRadius = 50;
 
+    public RectF CanvasDirtyRect { get; set; }
     public PlatformCanvas GameCanvas { get; set; }
     public Ball GameBall;
     public Bat GameBat;
@@ -29,8 +30,9 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
         GameCanvas = (PlatformCanvas)canvas;
+        CanvasDirtyRect = (RectF)dirtyRect;
 
-        canvas.FillColor =(Color) GameBat.FillColor;
+        canvas.FillColor = GameBat.FillColor;
 
         float X = dirtyRect.Width / 2;
         float Y = dirtyRect.Height - RectHeight * 2;
@@ -38,12 +40,12 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
         // bat
         GameBat.Element = new RectF(X, Y, RectWidth, RectHeight);
         canvas.FillRectangle(GameBat.Element);
-
+        
         //ball
         canvas.StrokeColor = Colors.Violet;
         canvas.StrokeSize = 6;
         canvas.FillColor = GameBall.FillColor;
-        GameBall.Element = new RectF(X, Y - 200, GameBall.Dimension.Height, GameBall.Dimension.Width);// todo: set ball size dynamic
+        GameBall.Element = new RectF(X, Y - 200, GameBall.Dimension.Height, GameBall.Dimension.Width);// todo: set ball cords dynamic
         //var intersected = GameBall.Element.IntersectsWith(GameBat.Element);
         canvas.FillRoundedRectangle(GameBall.Element, BallRadius);
 
@@ -61,6 +63,7 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
             for (var row = 30; row < dirtyRect.Width; row += 120)
             {
                 Brick brick = new Brick(x: row, y: col);
+                
                 brick.Element = new RectF(row, col, (float)(brick.Dimension.Width*0.85), (float)(brick.Dimension.Height*0.85));
                 GameBricks.Add(brick);
                 
@@ -78,10 +81,8 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
         }
     }
 
-    public PlatformCanvas GetGameCanvas()
-    {
-        return GameCanvas;
-    }
+    public PlatformCanvas GetGameCanvas() => GameCanvas;
+    public RectF GetCanvasDirtyRect() => CanvasDirtyRect;
 }
 
 

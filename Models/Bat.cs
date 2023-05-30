@@ -1,4 +1,6 @@
 ﻿using System;
+using Microsoft.Maui.Graphics.Platform;
+
 namespace BallBreaker.Models;
 
 public class Bat:GameShape
@@ -11,7 +13,15 @@ public class Bat:GameShape
         FillColor = color ?? Colors.BlueViolet;
     }
 
-
+    public void Draw(PlatformCanvas canvas, RectF dirtyRect)
+    {
+        canvas.FillColor = FillColor;
+        float X = dirtyRect.Width / 2;
+        float Y = dirtyRect.Height - Dimension.Height * 2;
+        // bat
+        Element = new RectF(X, Y, Dimension.Width, Dimension.Height);
+        canvas.FillRectangle(Element);
+    }
 }
 
 
