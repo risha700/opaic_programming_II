@@ -1,13 +1,22 @@
 ﻿using System;
+using CommunityToolkit.Mvvm.ComponentModel;
 namespace BallBreaker.Models;
 
 public class GameShape
 {
 
-    public SizeF Dimension { get; set; } // height and width
-    public PointF Position { get; set; } // x,y
-    public Color FillColor { get; set; }
-    public RectF Element { get; set; }
+    public SizeF Dimension; // height and width
+    public PointF Position; // x,y
+    public Color FillColor;
+
+    
+    public RectF Element;
+
+    public void Move(float XPoint)
+    {
+
+        this.Element.X = XPoint;
+    }
 
 }
 
@@ -22,4 +31,6 @@ public struct SizeF
         Width = width;
         Height = height;
     }
+
+
 }

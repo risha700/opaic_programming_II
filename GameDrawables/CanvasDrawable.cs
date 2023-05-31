@@ -13,76 +13,86 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
     private readonly uint RectWidth = 200;
     private readonly uint BallRadius = 50;
 
-    public RectF CanvasDirtyRect { get; set; }
-    public PlatformCanvas GameCanvas { get; set; }
+    public  RectF CanvasDirtyRect { get; set; }
+    public ICanvas GameCanvas { get; set; }
     public Ball GameBall;
-    public Bat GameBat;
+
+    [ObservableProperty]
+    public Bat gameBat;
+
+    
     public ObservableCollection<Brick> GameBricks;
 
 
     public CanvasDrawable()
     {
-        GameBat = new();
-        GameBall = new();
+        GameBat = new(x: (float)Shell.Current.Window.Width/2, y:(float)Shell.Current.Window.Height-100);
+        GameBall = new(x: (float)Shell.Current.Window.Width / 3, y: (float)(Shell.Current.Window.Height/2.5));
         GameBricks = new ObservableCollection<Brick>();
 
     }
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
-        GameCanvas = (PlatformCanvas)canvas;
+        GameCanvas = canvas;
         CanvasDirtyRect = (RectF)dirtyRect;
 
-        canvas.FillColor = GameBat.FillColor;
+        //canvas.FillColor = GameBat.FillColor;
 
         float X = dirtyRect.Width / 2;
         float Y = dirtyRect.Height - RectHeight * 2;
-       
+
         // bat
-        GameBat.Element = new RectF(X, Y, RectWidth, RectHeight);
-        canvas.FillRectangle(GameBat.Element);
-        
+        GameBat.Render(canvas, dirtyRect);
         //ball
-        canvas.StrokeColor = Colors.Violet;
-        canvas.StrokeSize = 6;
-        canvas.FillColor = GameBall.FillColor;
-        GameBall.Element = new RectF(X, Y - 200, GameBall.Dimension.Height, GameBall.Dimension.Width);// todo: set ball cords dynamic
-        //var intersected = GameBall.Element.IntersectsWith(GameBat.Element);
-        canvas.FillRoundedRectangle(GameBall.Element, BallRadius);
 
-
+        GameBall.Render(canvas, dirtyRect);
 
         // bricks
         // do math
-        float desiredHeight =(float) dirtyRect.Height / 3;
+        float desiredHeight = (float)dirtyRect.Height / 3;
         // how many bricks can fit in width and h
         canvas.FillColor = Colors.Green;
 
-        for (var col = 30; col < desiredHeight/2; col += 70)
-            
+        if(GameBricks.Count == 0)
         {
-            for (var row = 30; row < dirtyRect.Width; row += 120)
+            GenerateBricks(dirtyRect, desiredHeight);
+        }
+        
+
+        foreach (Brick brick in GameBricks)
+        {
+            if (brick.Dimension.Width + brick.Element.X < dirtyRect.Width)
             {
-                Brick brick = new Brick(x: row, y: col);
-                
-                brick.Element = new RectF(row, col, (float)(brick.Dimension.Width*0.85), (float)(brick.Dimension.Height*0.85));
-                GameBricks.Add(brick);
-                
-                
+                canvas.FillRectangle(brick.Element);
+            } // dont draw incomplete rect
+            else
+            {
+                GameBricks.Remove(brick);
 
             }
         }
 
+        
 
-        foreach (Brick brick in GameBricks)
+    }
+
+    private void GenerateBricks(RectF dirtyRect, float desiredHeight)
+    {
+        for (var col = 30; col < desiredHeight / 2; col += 70)
+
         {
-            canvas.ResetState();
-            if (brick.Dimension.Width + brick.Element.X < dirtyRect.Width) // dont draw incomplete rect
-            canvas.FillRectangle(brick.Element);
+            for (var row = 30; row < dirtyRect.Width; row += 120)
+            {
+                Brick brick = new Brick(x: row, y: col);
+
+                brick.Element = new RectF(row, col, (float)(brick.Dimension.Width * 0.85), (float)(brick.Dimension.Height * 0.85));
+                GameBricks.Add(brick);
+
+            }
         }
     }
 
-    public PlatformCanvas GetGameCanvas() => GameCanvas;
-    public RectF GetCanvasDirtyRect() => CanvasDirtyRect;
+
 }
 
 

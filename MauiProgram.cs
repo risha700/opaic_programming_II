@@ -4,6 +4,7 @@ using BallBreaker.Views;
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 
+
 namespace BallBreaker;
 
 public static class MauiProgram
@@ -29,6 +30,7 @@ public static class MauiProgram
         builder.Services.AddTransient<Ball>();
         builder.Services.AddTransient<Brick>();
         builder.Services.AddTransient<Bat>();
+		
         return builder.Build();
 	}
 }

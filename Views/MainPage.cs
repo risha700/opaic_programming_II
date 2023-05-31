@@ -2,39 +2,23 @@
 using BallBreaker.ViewModels;
 using Microsoft.Maui.Handlers;
 
+
 namespace BallBreaker.Views;
 
 public class MainPage : ContentPage
 {
 
-	public ContentView GameContentView=new();
-
-    
-
-    //private void OnKeyPressEvt(object sender, Android.Views.View.KeyEventArgs e)
-    //{
-    //    throw new NotImplementedException();
-    //}
+	
 
     public MainPage(GameViewModel GameVm)
 	{
-        //EntryHandler.Mapper.AppendToMapping("MyCustomization", (handler, view) => {
+		//var hook = new SimpleGlobalHook();
+		//hook.KeyPressed += OnKeyDown;
+  //      MainThread.BeginInvokeOnMainThread(() =>
+  //      {
+  //          hook.Run();
 
-        //    });
-
-        //v.ContainerView.key
-        
-
-
-        //if (nativeView != null)
-        //{
-        //    nativeView.KeyDown += this.PlatformView_KeyDown;
-        //    nativeView.KeyUp += this.PlatformView_KeyUp;
-        //    nativeView.PreviewKeyDown += this.PlatformView_PreviewKeyDown;
-        //}
-
-
-
+  //      });
         Content = new VerticalStackLayout
 		{
 			Children = {
@@ -45,4 +29,9 @@ public class MainPage : ContentPage
 			}
 		};
 	}
+
+  //  private void OnKeyDown(object sender, KeyboardHookEventArgs e)
+  //  {
+		//Console.WriteLine($"heeey key down!!!!{sender} {e.Data.KeyCode}");
+  //  }
 }
