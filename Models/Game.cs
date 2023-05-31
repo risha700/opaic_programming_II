@@ -90,7 +90,8 @@ public partial class Game:ObservableObject
         }
         void DetectSideCollision()
         {
-            if (canvasDrawable.GameBall.Position.X >= GameCanvasView.WidthRequest)
+
+            if (canvasDrawable.GameBall.Position.X >= GameCanvasView.WidthRequest) // max right
             {
                 canvasDrawable.GameBall.Position.X -= canvasDrawable.GameBall.Speed / 2;
                 switch (canvasDrawable.GameBall.Direction)
@@ -105,7 +106,7 @@ public partial class Game:ObservableObject
                 }
                 
             }
-            else if (canvasDrawable.GameBall.Position.X <=1)
+            else if (canvasDrawable.GameBall.Position.X <=1) //max left
             {
                 canvasDrawable.GameBall.Position.X += canvasDrawable.GameBall.Speed / 2;
 
@@ -121,13 +122,39 @@ public partial class Game:ObservableObject
                 }
                 
             }
-
-                if (canvasDrawable.GameBall.Element.IntersectsWith(canvasDrawable.GameBat.Element))
+            
+            else if (canvasDrawable.GameBall.Position.Y <= 1) //max top
             {
-                canvasDrawable.GameBall.SwitchDirection(BallDirection.UpLeft);
-            }else if (canvasDrawable.GameBricks.Any(e => e.Element.IntersectsWith(canvasDrawable.GameBall.Element)))
-            {
+                canvasDrawable.GameBall.Position.Y += canvasDrawable.GameBall.Speed / 2;
 
+                switch (canvasDrawable.GameBall.Direction)
+                {
+                    case (BallDirection.UpRight):
+                        canvasDrawable.GameBall.SwitchDirection(BallDirection.DownRight);
+                        break;
+                    case (BallDirection.UpLeft):
+                        canvasDrawable.GameBall.SwitchDirection(BallDirection.DownLeft);
+                        break;
+
+                }
+
+            }
+            if (canvasDrawable.GameBall.Element.IntersectsWith(canvasDrawable.GameBat.Element))
+            {
+                //canvasDrawable.GameBall.SwitchDirection(BallDirection.UpLeft);
+
+                if (canvasDrawable.GameBall.Direction is BallDirection.DownRight)
+                {
+                    canvasDrawable.GameBall.SwitchDirection(BallDirection.UpRight);
+
+                }
+                if (canvasDrawable.GameBall.Direction is BallDirection.DownLeft)
+                {
+                    canvasDrawable.GameBall.SwitchDirection(BallDirection.UpLeft);
+                }
+            }
+            else if (canvasDrawable.GameBricks.Any(e => e.Element.IntersectsWith(canvasDrawable.GameBall.Element)))
+            {
                 //canvasDrawable.GameBricks.Remove()
                 if (canvasDrawable.GameBall.Direction is BallDirection.UpLeft)
                 {
@@ -139,8 +166,9 @@ public partial class Game:ObservableObject
                     canvasDrawable.GameBall.SwitchDirection(BallDirection.DownRight);
 
                 }
+
                 //todo: pop some boxes and increment user score
-                
+
                 canvasDrawable.GameBricks.Remove(canvasDrawable.GameBricks.
                     Where(elm => elm.Element.IntersectsWith(canvasDrawable.GameBall.Element)).Single());
                 // todo: handle top collision
