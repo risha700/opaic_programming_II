@@ -40,7 +40,7 @@ dotnet test # todo
 ![](./screenshots/include.png)
 
 # Screen Shot
-![](./screenshots/prototype.png)
+![](./screenshots/final_shot.png)
 
 ---
 
