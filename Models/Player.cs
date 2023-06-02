@@ -1,11 +1,14 @@
 ﻿using System;
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace BallBreaker.Models;
 
-public class Player
+public partial class Player:ObservableObject
 {
 
 	public readonly Guid Id  = new();
-	public uint Score { get; set; } 
+	private uint score;
+	public uint Score { get=>score; set=>SetProperty(ref score, value); }
 	  
 	public Player()
 	{

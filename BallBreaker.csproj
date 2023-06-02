@@ -56,6 +56,7 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="7.0.86" />
+		<PackageReference Include="Plugin.Maui.Audio" Version="0.1.0-preview1" />
 		<PackageReference Include="SharpHook" Version="4.2.0" />
 		<PackageReference Include="SkiaSharp" Version="2.88.3" />
 		<PackageReference Include="SkiaSharp.Views.Maui.Core" Version="2.88.3" />
@@ -68,6 +69,11 @@
 	  <None Remove="GameDrawables\" />
 	  <None Remove="screenshots\" />
 
+	  <None Remove="Resources\Raw\breakblock.wav" />
+	  <None Remove="Resources\Raw\fireball.wav" />
+	  <None Remove="Resources\Raw\gameover.wav" />
+	  <None Remove="Resources\Raw\rounddone.wav" />
+	  <None Remove="Resources\Raw\won.wav" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Models\" />
@@ -76,4 +82,21 @@
 	  <Folder Include="GameDrawables\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <BundleResource Include="Resources\Raw\breakblock.wav">
+	    <LogicalName>gamesound\breakblock.wav</LogicalName>
+	  </BundleResource>
+	  <BundleResource Include="Resources\Raw\fireball.wav">
+	    <LogicalName>gamesound\fireball.wav</LogicalName>
+	  </BundleResource>
+	  <BundleResource Include="Resources\Raw\gameover.wav">
+	    <LogicalName>gamesound\gameover.wav</LogicalName>
+	  </BundleResource>
+	  <BundleResource Include="Resources\Raw\rounddone.wav">
+	    <LogicalName>gamesound\rounddone.wav</LogicalName>
+	  </BundleResource>
+	  <BundleResource Include="Resources\Raw\won.wav">
+	    <LogicalName>gamesound\won.wav</LogicalName>
+	  </BundleResource>
+	</ItemGroup>
 </Project>

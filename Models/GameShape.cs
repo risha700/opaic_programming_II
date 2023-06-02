@@ -7,7 +7,7 @@ public class GameShape
 
     public SizeF Dimension; // height and width
     public PointF Position; // x,y
-    public Color FillColor;
+    public Color FillColor=Colors.SlateBlue;
 
     
     public RectF Element;
