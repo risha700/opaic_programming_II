@@ -18,7 +18,7 @@ public partial class Game:ObservableObject
     public Game(GameAudioViewModel audioModel)
 	{
         GameCanvasView = new GraphicsView {
-            HeightRequest = Shell.Current.Window.Height * 0.9,
+            HeightRequest = Shell.Current.Window.Height * 0.85,
             WidthRequest = Shell.Current.Window.Width
         };
         

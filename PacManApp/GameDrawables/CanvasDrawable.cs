@@ -3,6 +3,8 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PacManApp.Models;
 
+
+
 namespace PacManApp.GameDrawables;
 
 public partial class CanvasDrawable : ObservableObject, IDrawable
@@ -21,63 +23,109 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
     //[ObservableProperty]
     public ObservableCollection<Ghost> Ghosts;
 
-    
+    public Board Board;
+
     public ObservableCollection<Wall> Walls;
+    public ObservableCollection<Kibble> Kibbles;
 
     public CanvasDrawable()
-	{
+    {
         PacMan = new(x: (float)Shell.Current.Window.Width / 3, y: (float)((Shell.Current.Window.Height * 0.9) / 2.5));
         Walls = new();
+        Board = new Board();
+        Kibbles = new();
     }
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
+        canvas.StrokeLineCap = LineCap.Round;
         GameCanvas = canvas;
         CanvasDirtyRect = (RectF)dirtyRect;
         PacMan.Render(canvas, dirtyRect);
 
-        GenerateWalls(dirtyRect);
+        // generate game buffer like
+        try
+        {
+            GenerateWalls(dirtyRect);
+
+        }catch (Exception ex)
+        {
+            Console.WriteLine($"Exception===> {ex.Message} {ex.InnerException}");
+        }
+
 
         foreach (var w in Walls)
         {
             canvas.FillColor = w.FillColor;
+            canvas.StrokeColor = Colors.DarkGray;
+            canvas.StrokeSize = 4;
+            canvas.SetFillPaint(w.WallPattern, w.Element);
             canvas.FillRectangle(w.Element);
+            //canvas.DrawRectangle(w.Element);
         }
-        
+        canvas.ResetStroke();
+        foreach (var k in Kibbles)
+        {
+            canvas.FillColor = k.FillColor;
+            canvas.FillRectangle(k.Element);
+        }
     }
 
     private void GenerateWalls(RectF dirtyRect)
     {
-        // draw walls all around
-
-        //for (var col = 30; col < desiredHeight / 2; col += 70)
-        //{
-        //    for (var row = 30; row < dirtyRect.Width; row += 120)
-        //    {
-        //        //Brick brick = new Brick(x: row, y: col, color: (Color)Color.FromRgb(random.Next(0, 255), random.Next(0, 255), (row + col) < 255 ? row + col : 100));
-        //        //brick.Element = new RectF(row, col, (float)(brick.Dimension.Width * 0.85), (float)(brick.Dimension.Height * 0.85));
-        //        //GameBricks.Add(brick);
-
-        //    }
-        //}
         
-        Console.WriteLine($"{dirtyRect.Width} {dirtyRect.Height}");
+        var maze = Board.Matrix;
+        int mazeWidth = maze.GetLength(1);
+        int mazeHeight = maze.GetLength(0);
+        int cellSize = (int)Math.Min(dirtyRect.Width / mazeWidth, dirtyRect.Height / mazeHeight);
+        int cellWidth = (int)Math.Floor(dirtyRect.Width / mazeWidth);
+        int cellHeight = (int)Math.Floor(dirtyRect.Height / mazeHeight);
 
-        for (var col=0; col < dirtyRect.Height; col++)
+        // Calculate the number of rows and columns based on the cell size and canvas dimensions
+        int numRows = (int)(dirtyRect.Height / cellSize);
+        int numCols = (int)(dirtyRect.Width / cellSize);
+
+        for (int row = 0; row < numRows; row++)
         {
-            for (var row = 0; row < dirtyRect.Width; row++)
+            for (int col = 0; col < numCols; col++)
             {
-                //all borders
-                if (col == 0 || row == 0 || col == dirtyRect.Height-20 || row == dirtyRect.Width-20)
+
+                // Determine the cell position in the canvas
+                int x = col * cellWidth;
+                int y = row * cellHeight;
+
+                var position=0;
+
+                try{ position = maze[row, col];}catch{} // for the unbalanced maze :(
+
+                switch (position)
                 {
-                    Wall wall = new Wall(x: row, y: col);
-                    wall.Element = new RectF(row, col, wall.Dimension.Width, wall.Dimension.Height);
-                    Walls.Add(wall);
+                    case 10:
+                        Walls.Add(
+                            new Wall {
+                                Element=new RectF(x,y,cellWidth, cellHeight),
+                                Dimension=new(cellWidth, cellHeight),
+                                Position=new(x,y)
+                            });
+                        break;
+
+                    case 01:
+
+                        var newX = x + (cellWidth / 2);
+                        var newY = y + (cellHeight / 2);
+                        Kibble kibble = new(x: newX, y: newY);
+                        kibble.Element = new RectF(newX, newY, kibble.Dimension.Width, kibble.Dimension.Height);
+                        Kibbles.Add(kibble);
+                        break;
+
+                    default:
+                         break;
                 }
 
             }
-
         }
+
+   
     }
 }
 

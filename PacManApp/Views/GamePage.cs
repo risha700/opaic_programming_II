@@ -11,11 +11,12 @@ public class GamePage : ContentPage
         VerticalOptions = LayoutOptions.Start,
 
         HeightRequest = Shell.Current.Window.Height,
+        WidthRequest = Shell.Current.Window.Width,
         ColumnSpacing = 0,
         RowSpacing = 0,
         RowDefinitions = {
-                new RowDefinition {Height = new GridLength(0.9, GridUnitType.Star)}, // canvas
-                new RowDefinition {Height = new GridLength(0.1, GridUnitType.Star)}, // result box
+                new RowDefinition {Height = new GridLength(0.85, GridUnitType.Star)}, // canvas
+                new RowDefinition {Height = new GridLength(0.15, GridUnitType.Star)}, // result box
             },
         ColumnDefinitions = {
                 new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }
@@ -25,6 +26,7 @@ public class GamePage : ContentPage
     {
         Content = new FlexLayout
         {
+            BackgroundColor = Colors.Bisque,
             JustifyContent = Microsoft.Maui.Layouts.FlexJustify.SpaceAround,
             AlignContent = Microsoft.Maui.Layouts.FlexAlignContent.Center,
         },
