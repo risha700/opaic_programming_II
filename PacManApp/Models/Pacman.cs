@@ -6,24 +6,29 @@ namespace PacManApp.Models;
 
 public class Pacman:GameShape
 {
+    private double x;
+    private float y;
+
     public string Img { get; set; }
     //public PathF Mouth { get; set; }
 
-	public Pacman(float w = 50, float h = 50, float x = 0, float y = 0, Color clr = null, String img=null)
+	public Pacman(float w = 25, float h = 25, float x = 0, float y = 0, Color clr = null, String img=null)
     {
 
         Dimension = new(w, h);
         Position = new(x, y); // set it by height of canvas
-        FillColor = clr ?? Colors.Yellow;
+        FillColor = clr ?? Colors.Blue;
         Img = img ?? "pacman.png";
     }
 
+
+
     public void Render(ICanvas canvas, RectF dirtyRect)
     {
-        canvas.StrokeColor = Colors.Violet;
+        canvas.StrokeColor = Colors.GreenYellow;
         canvas.StrokeSize = 6;
         canvas.FillColor = FillColor;
-        Element = new RectF(Position.X+200, Position.Y - 200, Dimension.Height, Dimension.Width);
+        Element = new RectF(Position.X, Position.Y, Dimension.Height, Dimension.Width);
         canvas.FillEllipse(Element);
 
 

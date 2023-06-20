@@ -9,6 +9,7 @@ namespace PacManApp.GameDrawables;
 
 public partial class CanvasDrawable : ObservableObject, IDrawable
 {
+    PointF WallBrickDimensions = new();
 
     public RectF CanvasDirtyRect { get; set; }
     public ICanvas GameCanvas { get; set; }
@@ -30,10 +31,11 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
 
     public CanvasDrawable()
     {
-        PacMan = new(x: (float)Shell.Current.Window.Width / 3, y: (float)((Shell.Current.Window.Height * 0.9) / 2.5));
         Walls = new();
         Board = new Board();
         Kibbles = new();
+        Ghosts = new();
+        PacMan = new();
     }
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
@@ -41,34 +43,37 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
         canvas.StrokeLineCap = LineCap.Round;
         GameCanvas = canvas;
         CanvasDirtyRect = (RectF)dirtyRect;
-        PacMan.Render(canvas, dirtyRect);
 
-        // generate game buffer like
-        try
-        {
-            GenerateWalls(dirtyRect);
-
-        }catch (Exception ex)
-        {
-            Console.WriteLine($"Exception===> {ex.Message} {ex.InnerException}");
-        }
-
+        GenerateWalls(dirtyRect);
 
         foreach (var w in Walls)
         {
             canvas.FillColor = w.FillColor;
-            canvas.StrokeColor = Colors.DarkGray;
-            canvas.StrokeSize = 4;
+            canvas.StrokeColor = Colors.Gray;
+            canvas.StrokeSize = 2;
             canvas.SetFillPaint(w.WallPattern, w.Element);
             canvas.FillRectangle(w.Element);
-            //canvas.DrawRectangle(w.Element);
+            canvas.DrawRectangle(w.Element);
         }
         canvas.ResetStroke();
+
         foreach (var k in Kibbles)
         {
             canvas.FillColor = k.FillColor;
-            canvas.FillRectangle(k.Element);
+            canvas.FillEllipse(k.Element);
         }
+
+        foreach (var g in Ghosts)
+        {
+            canvas.FillColor = g.FillColor;
+            canvas.FillRoundedRectangle(g.Element, 23);
+        }
+
+        PacMan.Position.X = WallBrickDimensions.X + PacMan.Dimension.Width/2;
+        PacMan.Position.Y = dirtyRect.Height - WallBrickDimensions.X-PacMan.Dimension.Height-5;
+
+        PacMan.Render(canvas, dirtyRect);
+
     }
 
     private void GenerateWalls(RectF dirtyRect)
@@ -80,10 +85,11 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
         int cellSize = (int)Math.Min(dirtyRect.Width / mazeWidth, dirtyRect.Height / mazeHeight);
         int cellWidth = (int)Math.Floor(dirtyRect.Width / mazeWidth);
         int cellHeight = (int)Math.Floor(dirtyRect.Height / mazeHeight);
-
-        // Calculate the number of rows and columns based on the cell size and canvas dimensions
         int numRows = (int)(dirtyRect.Height / cellSize);
         int numCols = (int)(dirtyRect.Width / cellSize);
+
+        WallBrickDimensions.X = cellWidth;
+        WallBrickDimensions.Y = cellHeight;
 
         for (int row = 0; row < numRows; row++)
         {
@@ -110,12 +116,18 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
                         break;
 
                     case 01:
-
                         var newX = x + (cellWidth / 2);
                         var newY = y + (cellHeight / 2);
                         Kibble kibble = new(x: newX, y: newY);
                         kibble.Element = new RectF(newX, newY, kibble.Dimension.Width, kibble.Dimension.Height);
                         Kibbles.Add(kibble);
+                        break;
+                    case 99:
+                        var xpos = x+10;
+                        var ypos = y+10;
+                        Ghost ghost = new(x: xpos, y: ypos);
+                        ghost.Element = new RectF(xpos, ypos, ghost.Dimension.Width, ghost.Dimension.Height);
+                        Ghosts.Add(ghost);
                         break;
 
                     default:
