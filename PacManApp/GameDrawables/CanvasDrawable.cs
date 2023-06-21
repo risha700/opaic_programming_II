@@ -66,7 +66,8 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
         foreach (var g in Ghosts)
         {
             canvas.FillColor = g.FillColor;
-            canvas.FillRoundedRectangle(g.Element, 23);
+            g.Render(canvas, dirtyRect);
+            //canvas.FillRoundedRectangle(g.Element, 23);
         }
 
         PacMan.Position.X = WallBrickDimensions.X + PacMan.Dimension.Width/2;
