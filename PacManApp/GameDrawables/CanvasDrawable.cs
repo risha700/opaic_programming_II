@@ -41,11 +41,14 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
         canvas.StrokeLineCap = LineCap.Round;
-        GameCanvas = canvas;
-        CanvasDirtyRect = (RectF)dirtyRect;
+
+        // assign canvas to reuse it
+        GameCanvas = canvas; 
+        CanvasDirtyRect = (RectF)dirtyRect; 
 
         GenerateWalls(dirtyRect);
 
+        // draw maze walls
         foreach (var w in Walls)
         {
             canvas.FillColor = w.FillColor;
@@ -57,12 +60,15 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
         }
         canvas.ResetStroke();
 
+        // draw kibbles
         foreach (var k in Kibbles)
         {
             canvas.FillColor = k.FillColor;
             canvas.FillEllipse(k.Element);
         }
         canvas.ResetStroke();
+
+        // draw ghost
         foreach (var g in Ghosts)
         {
             canvas.FillColor = g.FillColor;
@@ -70,6 +76,7 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
             //canvas.FillRoundedRectangle(g.Element, 23);
         }
 
+        // draw pacman
         PacMan.Position.X = WallBrickDimensions.X + PacMan.Dimension.Width/2;
         PacMan.Position.Y = dirtyRect.Height - (WallBrickDimensions.Y+PacMan.Dimension.Height*2);
 

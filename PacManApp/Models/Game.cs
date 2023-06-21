@@ -37,6 +37,13 @@ public partial class Game:ObservableObject
 
     private void OnDragAction(object sender, TouchEventArgs e)
     {
+        //e.Touches
+
+        canvasDrawable.PacMan.Element.X = e.Touches[0].X+canvasDrawable.PacMan.Dimension.Width;
+        GameCanvasView.Invalidate();
+
+        //canvasDrawable.PacMan.Position.Y
+        //e.Touches?[0].X
         //throw new NotImplementedException();
     }
 }
