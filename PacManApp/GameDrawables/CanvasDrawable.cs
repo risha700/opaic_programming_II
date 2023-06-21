@@ -62,7 +62,7 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
             canvas.FillColor = k.FillColor;
             canvas.FillEllipse(k.Element);
         }
-
+        canvas.ResetStroke();
         foreach (var g in Ghosts)
         {
             canvas.FillColor = g.FillColor;
@@ -71,7 +71,7 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
         }
 
         PacMan.Position.X = WallBrickDimensions.X + PacMan.Dimension.Width/2;
-        PacMan.Position.Y = dirtyRect.Height - WallBrickDimensions.X-PacMan.Dimension.Height-5;
+        PacMan.Position.Y = dirtyRect.Height - (WallBrickDimensions.Y+PacMan.Dimension.Height*2);
 
         PacMan.Render(canvas, dirtyRect);
 
