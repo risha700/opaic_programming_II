@@ -15,12 +15,12 @@ public class Ghost:GameShape
     public void Render(ICanvas canvas, RectF dirtyRect)
     {
         canvas.FillColor = FillColor;
-        Element = new RectF(Position.X, Position.Y, Dimension.Width, Dimension.Height);
+        Element = new RectF(Position.X, Position.Y, Dimension.Height, Dimension.Height);
         //canvas.FillRectangle(Element);
 
         PathF path = new ();
         //path.AppendRectangle(Element);
-        var r = Dimension.Width / 2;
+        var r = Dimension.Height / 2;
         var x = Element.X;
         var y = Element.Y;
 

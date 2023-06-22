@@ -9,7 +9,7 @@ namespace PacManApp.GameDrawables;
 
 public partial class CanvasDrawable : ObservableObject, IDrawable
 {
-    PointF WallBrickDimensions = new();
+    public PointF WallBrickDimensions = new();
 
     public RectF CanvasDirtyRect { get; set; }
     public ICanvas GameCanvas { get; set; }
@@ -44,9 +44,18 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
 
         // assign canvas to reuse it
         GameCanvas = canvas; 
-        CanvasDirtyRect = (RectF)dirtyRect; 
+        CanvasDirtyRect = (RectF)dirtyRect;
 
-        GenerateWalls(dirtyRect);
+        if (FirstRender)
+        {
+            GenerateWalls(dirtyRect);
+
+            PacMan.Position.X = WallBrickDimensions.X + PacMan.Dimension.Height / 2;
+            PacMan.Position.Y = dirtyRect.Height - (WallBrickDimensions.Y + PacMan.Dimension.Height * 2);
+            //PacMan.Dimension.Height = WallBrickDimensions.Y;
+            //PacMan.Dimension.Width = WallBrickDimensions.X;
+            FirstRender = false;
+        }
 
         // draw maze walls
         foreach (var w in Walls)
@@ -75,10 +84,8 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
             g.Render(canvas, dirtyRect);
             //canvas.FillRoundedRectangle(g.Element, 23);
         }
-
         // draw pacman
-        PacMan.Position.X = WallBrickDimensions.X + PacMan.Dimension.Width/2;
-        PacMan.Position.Y = dirtyRect.Height - (WallBrickDimensions.Y+PacMan.Dimension.Height*2);
+
 
         PacMan.Render(canvas, dirtyRect);
 
@@ -127,14 +134,14 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
                         var newX = x + (cellWidth / 2);
                         var newY = y + (cellHeight / 2);
                         Kibble kibble = new(x: newX, y: newY);
-                        kibble.Element = new RectF(newX, newY, kibble.Dimension.Width, kibble.Dimension.Height);
+                        kibble.Element = new RectF(newX, newY, kibble.Dimension.Height, kibble.Dimension.Height);
                         Kibbles.Add(kibble);
                         break;
                     case 99:
                         var xpos = x+10;
                         var ypos = y+10;
                         Ghost ghost = new(x: xpos, y: ypos);
-                        ghost.Element = new RectF(xpos, ypos, ghost.Dimension.Width, ghost.Dimension.Height);
+                        ghost.Element = new RectF(xpos, ypos, ghost.Dimension.Height, ghost.Dimension.Height);
                         Ghosts.Add(ghost);
                         break;
 

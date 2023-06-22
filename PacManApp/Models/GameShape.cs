@@ -11,13 +11,9 @@ public class GameShape
     public Color FillColor = Colors.SlateBlue;
 
 
-    public RectF Element;
+    public RectF Element ;
 
-    public void MoveTo(float XPoint, float YPoint)
-    {
-        this.Element.Y = YPoint;
-        this.Element.X = XPoint;
-    }
+    
 
     public void SwitchDirection(Direction direction)
     {
