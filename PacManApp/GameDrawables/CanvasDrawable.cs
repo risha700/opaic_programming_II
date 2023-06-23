@@ -50,11 +50,14 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
         {
             GenerateWalls(dirtyRect);
 
-            PacMan.Position.X = WallBrickDimensions.X + PacMan.Dimension.Height / 2;
-            PacMan.Position.Y = dirtyRect.Height - (WallBrickDimensions.Y + PacMan.Dimension.Height * 2);
-            //PacMan.Dimension.Height = WallBrickDimensions.Y;
-            //PacMan.Dimension.Width = WallBrickDimensions.X;
+            PacMan.Position.X = WallBrickDimensions.X + PacMan.Dimension.Width / 2;
+            PacMan.Position.Y = (float)(dirtyRect.Height - ((WallBrickDimensions.Y*2)+ PacMan.Dimension.Height));
+            PacMan.Dimension.Height = (float)(WallBrickDimensions.Y*0.85);
+            PacMan.Dimension.Width = (float)(WallBrickDimensions.X*0.85);
+            
             FirstRender = false;
+            
+
         }
 
         // draw maze walls

@@ -5,6 +5,10 @@ namespace PacManApp.Views;
 
 public class GamePage : ContentPage
 {
+    Button startButton = new Button { Text="Play" };
+    Label gameScore = new Label { Text="Score" };
+    Label playerLives = new Label { Text = "Lives" };
+
     Grid gridContainer = new Grid
     {
 
@@ -24,18 +28,39 @@ public class GamePage : ContentPage
     };
     Frame resultBox = new Frame
     {
-        Content = new FlexLayout
-        {
-            BackgroundColor = Colors.Bisque,
-            JustifyContent = Microsoft.Maui.Layouts.FlexJustify.SpaceAround,
-            AlignContent = Microsoft.Maui.Layouts.FlexAlignContent.Center,
-        },
+
     };
+
+    FlexLayout resultContainer = new FlexLayout
+        {
+            //BackgroundColor = Colors.Bisque,
+            JustifyContent = Microsoft.Maui.Layouts.FlexJustify.SpaceEvenly,
+            AlignContent = Microsoft.Maui.Layouts.FlexAlignContent.Start,
+            AlignItems = Microsoft.Maui.Layouts.FlexAlignItems.Start,
+        };
+    public GameViewModel CurrentGame { get; set; }
 
 
     public GamePage(GameViewModel GameVm)
 	{
-		
+
+        CurrentGame = GameVm;
+        // create the result box
+        resultBox.Content = resultContainer;
+        resultContainer.Children.Add(gameScore);
+        resultContainer.Children.Add(playerLives);
+        resultContainer.Children.Add(startButton);
+        gameScore.SetBinding(Label.TextProperty, new Binding("Score", source: CurrentGame.ActiveGame.GamePlayer, stringFormat:"Score \n {0}"));
+        playerLives.SetBinding(Label.TextProperty, new Binding("Lives", source: CurrentGame.ActiveGame.GamePlayer, stringFormat: "Lives \n {0}"));
+
+        startButton.Clicked += (s,o) =>
+        {
+            //shoud start timer
+            CurrentGame.ActiveGame.GameTimer.Start();
+
+        };
+
+
         gridContainer.Add(resultBox, 0, 1);
         gridContainer.SetRowSpan(resultBox, 1);
         gridContainer.Add(GameVm.ActiveGame.GameCanvasView, 0, 0);

@@ -6,9 +6,7 @@ namespace PacManApp.Models;
 
 public class Pacman:GameShape
 {
-    private double x;
-    private float y;
-
+    public bool IsEating = false;
     
     //public PathF Mouth { get; set; }
 
@@ -61,7 +59,8 @@ public class Pacman:GameShape
         }
 
         //full circle
-        //canvas.FillArc(Element, 0, 359, false);
+        if(IsEating)
+        canvas.FillArc(Element, 0, 359, false);
 
 
 

@@ -16,9 +16,12 @@ public partial class MainPage : ContentPage
     {
         Content = new VerticalStackLayout
         {
+            //HeightRequest = Shell.Current.Window.Height,
+            
+            VerticalOptions = LayoutOptions.Center,
             Children = {
                 new Label { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center, Text = "Welcome to PacMan Game"},
-                new Button{Text="Play Now", Command=PlayNowCommand}
+                new Button{Text="Play Now", Command=PlayNowCommand, WidthRequest=300, HeightRequest=300}
             }
         };
     }
