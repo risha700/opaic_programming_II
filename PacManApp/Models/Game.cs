@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Timers;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -12,7 +14,7 @@ namespace PacManApp.Models;
 public partial class Game:ObservableObject
 {
     const int PACMAN_SPEEE= 20;
-    private readonly uint TIMER_ITERVALS = 40;
+    private readonly uint TIMER_ITERVALS = 200;
 
 
     [ObservableProperty]
@@ -29,7 +31,7 @@ public partial class Game:ObservableObject
     CanvasDrawable canvasDrawable = new CanvasDrawable();
 
     [ObservableProperty]
-    public Direction swipeDirection;
+    public Direction swipeDirection=Direction.Right;
 
     public List<PointF> InteractionTouches = new List<PointF>() { new PointF { } };
     
@@ -55,11 +57,11 @@ public partial class Game:ObservableObject
     private void setupTimers()
     {
         //RemainingTime = TimeSpan.FromMinutes(100);
-        GameTimer = new (TimeSpan.FromMinutes(3000));
+        GameTimer = new (TimeSpan.FromMinutes(10));
         GameTimer.Interval = TIMER_ITERVALS;
         GameTimer.Elapsed += new ElapsedEventHandler(OnGameTimerElapsed);
         //GameTimer.Start();
-
+        
 
     }
 
@@ -67,17 +69,85 @@ public partial class Game:ObservableObject
     {
         // loop the game
         //canvasDrawable.GameBall.Speed = 20; // todo: hook it with game level
-        //MainThread.BeginInvokeOnMainThread(() =>
-        //{
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
             //DetectCollision();
-            Console.WriteLine($"timer is running");
+            
+            MovePacMan();
+            //Console.WriteLine($"timer is running");
             GameCanvasView.Invalidate();
-        //});
+        });
         //RemainingTime -= TimeSpan.FromMilliseconds(TIMER_ITERVALS);
 
     }
 
+    private bool DetectCollision()
+    {
+        var maze = canvasDrawable.Board.Matrix;
 
+        var currenScreenX = canvasDrawable.PacMan.Position.X;
+        var currentScreenY = canvasDrawable.PacMan.Position.Y;
+
+        int nextX = (int)(currenScreenX / canvasDrawable.WallBrickDimensions.X);
+        int nextY = (int)(currentScreenY / canvasDrawable.WallBrickDimensions.Y);
+
+        double realNextX = currenScreenX / canvasDrawable.WallBrickDimensions.X;
+        double realNextY = (currentScreenY / canvasDrawable.WallBrickDimensions.Y);
+
+        bool canFit = false;
+
+        
+
+        switch (SwipeDirection)
+        {
+            case Direction.Right:
+                canFit = Math.Abs(realNextX - nextX) > 0.4;
+                nextX += 1;
+                break;
+            case Direction.Left:
+                canFit = Math.Abs(realNextX - nextX) > 0.4;
+                nextX -= 1;
+                break;
+            case Direction.Up:
+                //Console.WriteLine($"CanFit In UP {canFit} => {maze[nextX, nextY]} - ({nextX},{nextY}) - X-diff = {realNextX - nextX} Y-diff= {realNextY - nextY:c2}");
+                canFit = Math.Abs(realNextY - nextY) > 0.4;
+                nextY -= 1;
+                break;
+            case Direction.Down:
+                canFit = Math.Abs(realNextY - nextY) > 0.4;
+                nextY += 1;
+                break;
+        }
+
+        Console.WriteLine($"NEXT MOVE {canFit} => {maze[nextX, nextY]} - ({nextX},{nextY}) - X-diff = {realNextX - nextX} Y-diff= {realNextY - nextY:c2}");
+
+        
+        if (nextX < 0 || nextX > maze.GetLength(1) || nextY < 0 || nextY >= maze.GetLength(0))
+        {
+            return false;
+        }
+
+
+        if (maze[nextX, nextY] == 10)
+        {
+            // now we need real x and y on screen
+
+            //Console.WriteLine($"Caught 10 {canFit} => {maze[nextX, nextY]} - ({nextX},{nextY}) - X-diff = {realNextX - nextX} Y-diff= {realNextY - nextY:c2}");
+
+
+
+            float nextSxreenX = nextX * canvasDrawable.WallBrickDimensions.X;
+            float nextScreenY = nextY * canvasDrawable.WallBrickDimensions.Y;
+            Console.WriteLine($"Caught 10 nextScreen {nextSxreenX} {nextScreenY} currenScreen {currenScreenX} {currentScreenY}");
+
+            return canFit;
+
+        }
+
+
+        return true;
+
+    }
 
     private void OnDragAction(object sender, TouchEventArgs e)
     {
@@ -89,39 +159,42 @@ public partial class Game:ObservableObject
 
         InteractionTouches.Add(e.Touches[0]);
 
-        
+        var OldSwipe = SwipeDirection;
 
         double pressed_angle = LimitTapGesture(pac_x, pac_y, touch_x, touch_y);
 
-        if (touch_y < pac_y && pressed_angle > 80 && pressed_angle < 120&& CanMoveTo(Direction.Up)) // && can go up
+        if (touch_y < pac_y && pressed_angle > 80 && pressed_angle < 120) // && can go up
         {
             SwipeDirection = Direction.Up;            
-            MovePacMan();
-
             //Console.WriteLine($"debug===> should go up");
-
         }
-        else if (touch_y > pac_y && pressed_angle > 235 && pressed_angle < 280 && CanMoveTo(Direction.Down))
+        else if (touch_y > pac_y && pressed_angle > 235 && pressed_angle < 280)
         {
             SwipeDirection = Direction.Down;
-            MovePacMan();
             //Console.WriteLine($"debug===> should go down ");
         }
-        else if (touch_x > pac_x && pressed_angle > 160 && pressed_angle < 199 && CanMoveTo(Direction.Right))
+        else if (touch_x > pac_x && pressed_angle > 160 && pressed_angle < 199 )
         {
             SwipeDirection = Direction.Right;
-            
-            MovePacMan();
             //Console.WriteLine($"debug===> should go right ");
         }
-        else if (touch_x < pac_x && pressed_angle > 300 && pressed_angle < 360 && CanMoveTo(Direction.Left))
+        else if (touch_x < pac_x && pressed_angle > 300 && pressed_angle < 360 )
         {
-
-            SwipeDirection = Direction.Left;
-            
-            MovePacMan();
+            SwipeDirection = Direction.Left;   
             //Console.WriteLine($"debug===> should go left ");
         }
+        if (CanMoveTo(SwipeDirection))
+        {
+            MovePacMan();
+
+        }
+
+        if (OldSwipe != SwipeDirection)
+        {
+            Console.WriteLine($"CAN TURN {SwipeDirection} - {CanTurn(SwipeDirection)}");
+            OldSwipe = SwipeDirection;
+        }
+
 
         Thread.Sleep(5); //throttle
 
@@ -148,36 +221,47 @@ public partial class Game:ObservableObject
         int nextX = (int)(currenScreenX / canvasDrawable.WallBrickDimensions.X);
         int nextY = (int)(currentScreenY / canvasDrawable.WallBrickDimensions.Y);
 
-        double realNextX = currenScreenX / canvasDrawable.WallBrickDimensions.X;
-        double realNextY = (currentScreenY / canvasDrawable.WallBrickDimensions.Y);
+        float realNextX = currenScreenX / canvasDrawable.WallBrickDimensions.X;
+        float realNextY = currentScreenY / canvasDrawable.WallBrickDimensions.Y;
 
+        Rect nextElm = new Rect { Location = new (realNextX, realNextY) , Size = canvasDrawable.PacMan.Element.Size };
+
+        //Console.WriteLine($"element is touching {canvasDrawable.Walls.Any(w => w.Element.IntersectsWith(canvasDrawable.PacMan.CollissionElement))}");
         bool canFit = false;
 
-        Console.WriteLine($"CURRENT MOVE => {maze[nextX, nextY]} - ({nextX},{nextY}) double value {realNextX},{realNextY}");
 
+        //return !canvasDrawable.Walls.Any(w => w.Element.IntersectsWith(nextElm));
+        Console.WriteLine($"\nCURRENT MOVE => {maze[nextX, nextY]} - ({nextX},{nextY}) \n" +
+            $"double value {realNextX}, {realNextY}\n X-diff = {realNextX - nextX:f2} Y-diff= {realNextY - nextY:f2}");
+        //Console.WriteLine($"CURRENT MOVE => {maze[nextX, nextY]} - ({nextX},{nextY}) double value {realNextX} X-diff = {realNextX - nextX:f2} ");
         switch (direction)
         {
             case Direction.Right:
-                canFit = (float)(realNextX - nextX )> 0.3;
-                nextX += 1;
+                canFit = realNextX - nextX > 0.25;
+                //if(canFit)
+                    nextX += 1;
                 break;
             case Direction.Left:
-                canFit = (float)(realNextX - nextX) > 0.3;
-                nextX -= 1;
+                canFit = realNextX - nextX > 0.25;
+                //if (canFit)
+                    nextX -= 1;
                 break;
             case Direction.Up:
-                canFit =(float) (realNextY - nextY) > 0.3;
-                nextY -= 1;
+                canFit = realNextY - nextY > 0.25;
+                //Console.WriteLine($"CanFit In UP {canFit} => {maze[nextX, nextY]} - ({nextX},{nextY}) - X-diff = {realNextX - nextX:f2} Y-diff= {realNextY - nextY:f2}");
+                //if (canFit)
+                    nextY -= 1;
                 break;
             case Direction.Down:
-                canFit = (float)(realNextY - nextY) > 0.3;
-                nextY += 1;
+                canFit = realNextY - nextY > 0.25;
+                //if (canFit)
+                    nextY += 1;
                 break;
         }
 
-        Console.WriteLine($"NEXT MOVE {canFit} => {maze[nextX, nextY]} - ({nextX},{nextY}) - X-diff = {realNextX-nextX} Y-diff= {realNextY-nextY :c2}");
+        Console.WriteLine($"NEXT MOVE can fit {canFit} on {direction} => {maze[nextX, nextY]} - ({nextX},{nextY}) - X-diff = {realNextX-nextX:f2} Y-diff= {realNextY-nextY :f2}");
 
-
+        
         if (nextX<0|| nextX>maze.GetLength(1) || nextY<0||nextY >= maze.GetLength(0))
         {
             return false;
@@ -188,10 +272,13 @@ public partial class Game:ObservableObject
         {
             // now we need real x and y on screen
 
-  
+            //Console.WriteLine($"Caught 10 {canFit} => {maze[nextX, nextY]} - ({nextX},{nextY}) - X-diff = {realNextX - nextX} Y-diff= {realNextY - nextY:c2}");
+
+
 
             float nextSxreenX = nextX * canvasDrawable.WallBrickDimensions.X;
             float nextScreenY = nextY * canvasDrawable.WallBrickDimensions.Y;
+            Console.WriteLine($"Caught 10 nextScreen {nextSxreenX} {nextScreenY} currenScreen {currenScreenX} {currentScreenY}");
 
             return canFit;
 
@@ -201,60 +288,50 @@ public partial class Game:ObservableObject
         return true;
     }
 
-    bool CanMoveTo2( Direction direction)
+    bool CanEat() => canvasDrawable.Kibbles.Any(k => k.Element.IntersectsWith(canvasDrawable.PacMan.Element));
+
+
+    // only allow middle turn
+    // casting numbers int and back float makes 4 or 5 steps diffence depending on size of wall block
+    // and where is the element placed on the window in relation to the matrix
+    bool CanTurn( Direction direction)
     {
-        var maze = canvasDrawable.Board.Matrix;
-        var pac_x = (int)canvasDrawable.PacMan.Position.X;
-        var pac_y = (int)canvasDrawable.PacMan.Position.Y;
-        int maze_x = (int)(pac_x / canvasDrawable.WallBrickDimensions.X);
-        int maze_y = (int)(pac_y / canvasDrawable.WallBrickDimensions.Y);
-        //int maze_x = (int)(pac_x / canvasDrawable.PacMan.Dimension.Width);
-        //int maze_y = (int)(pac_y / canvasDrawable.PacMan.Dimension.Height);
-        //var temp_rect = canvasDrawable.PacMan.Element;
+        
 
-        //var position = 0;
+        var currenScreenX = canvasDrawable.PacMan.Position.X;
+        var currentScreenY = canvasDrawable.PacMan.Position.Y;
 
-        //int nextX = (int)((int)canvasDrawable.PacMan.Position.X/ (canvasDrawable.PacMan.Dimension.Height * 2));
-        //int nextY = (int)((int)canvasDrawable.PacMan.Position.Y / (canvasDrawable.PacMan.Dimension.Width * 2));
-        int nextX = (int)((int)canvasDrawable.PacMan.Position.X / (canvasDrawable.PacMan.Dimension.Width));
-        int nextY = (int)((int)canvasDrawable.PacMan.Position.Y / (canvasDrawable.PacMan.Dimension.Height));
+        int nextX = (int)(currenScreenX / canvasDrawable.WallBrickDimensions.X);
+        int nextY = (int)(currentScreenY / canvasDrawable.WallBrickDimensions.Y);
+
+        double realNextX = currenScreenX / canvasDrawable.WallBrickDimensions.X;
+        double realNextY = currentScreenY / canvasDrawable.WallBrickDimensions.Y;
+
+        bool canTurn = false;
 
         switch (direction)
         {
             case Direction.Right:
-                nextX += 1;
+                canTurn = realNextX - nextX < 0.2;
                 break;
             case Direction.Left:
-                nextX -= 1;
+                canTurn = realNextX - nextX < 0.2;
                 break;
             case Direction.Up:
-                nextY -= 1;
+                canTurn = realNextY - nextY < 0.2;
                 break;
             case Direction.Down:
-                nextY += 1;
+                canTurn = realNextY - nextY < 0.2;
                 break;
         }
 
-        Console.WriteLine($"CAN MOVE ===>nextY {nextY} nextX {nextX} pac_x {pac_x} pac_y {pac_y}");
-
-        //// Check if the next position is within the game boundaries
-        if (nextX < 0 || nextX >= canvasDrawable.Board.Matrix.GetLength(0) || nextY < 0 || nextY >= canvasDrawable.Board.Matrix.GetLength(1))
-        {
-            return false; // Movement outside the game boundaries
-        }
-
-        // Check if the next position collides with a wall
-        if (maze[nextX, nextY] == 10)
-        {
-            return false; // Movement collides with a wall
-        }
-
-        return true;
-        //Console.WriteLine($"devug===> next position is {position} - current position is {maze[maze_x, maze_y]} at x: {pac_x} ,y: {pac_y} - mazex:{maze_x}, mazey{maze_y}");
-        //return position!=10;
-
-        //return canvasDrawable.Walls.Any(w=> !w.Element.IntersectsWith(temp_rect));
+        return canTurn;
     }
+
+
+
+
+
     void MovePacMan()
     {
         // dont go if the next move intersects with walls
@@ -289,11 +366,13 @@ public partial class Game:ObservableObject
             {
                 canvasDrawable.PacMan.IsEating = true;
                 GameCanvasView.Invalidate();
+                await AudioModel.PlayAudio("fireball");
                 await Task.Delay(50);
                 canvasDrawable.PacMan.IsEating = false;
             });
-            GamePlayer.Score += 1;
+
             // increment score
+            GamePlayer.Score += 1;
             // play sound
         }
     }

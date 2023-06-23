@@ -5,10 +5,11 @@ namespace PacManApp.Views;
 
 public class GamePage : ContentPage
 {
-    Button startButton = new Button { Text="Play" };
-    Label gameScore = new Label { Text="Score" };
+    Button startButton = new Button { Text = "Play" };
+    Label gameScore = new Label { Text = "Score" };
     Label playerLives = new Label { Text = "Lives" };
 
+    public bool IsTimerRunning {get;set;}
     Grid gridContainer = new Grid
     {
 
@@ -55,8 +56,21 @@ public class GamePage : ContentPage
 
         startButton.Clicked += (s,o) =>
         {
-            //shoud start timer
-            CurrentGame.ActiveGame.GameTimer.Start();
+            if (IsTimerRunning)
+            {
+                //shoud start timer
+                CurrentGame.ActiveGame.GameTimer.Stop();
+                startButton.Text = "Start";
+                IsTimerRunning = false;
+
+            }
+            else
+            {
+                //shoud start timer
+                CurrentGame.ActiveGame.GameTimer.Start();
+                startButton.Text = "Pause";
+                IsTimerRunning = true;
+            }
 
         };
 

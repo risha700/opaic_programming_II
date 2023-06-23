@@ -7,7 +7,7 @@ namespace PacManApp.Models;
 public class Pacman:GameShape
 {
     public bool IsEating = false;
-    
+    public RectF CollissionElement;
     //public PathF Mouth { get; set; }
 
 	public Pacman(float w = 30, float h = 30, float x = 0, float y = 0, Color clr = null)
@@ -22,7 +22,7 @@ public class Pacman:GameShape
 
 
 
-    public void Render(ICanvas canvas, RectF dirtyRect)
+    public void Render(ICanvas canvas, RectF dirtyRect, PointF WallBrickDimensions)
     {
         double radius = Dimension.Height / 2;
         
@@ -30,8 +30,12 @@ public class Pacman:GameShape
         canvas.StrokeColor = Colors.GreenYellow;
         canvas.StrokeSize = 6;
         canvas.FillColor = FillColor;
-        Element = new RectF(Position.X, Position.Y, Dimension.Height, Dimension.Height);
-        //canvas.FillEllipse(Element);
+        Element = new RectF(Position.X, Position.Y, Dimension.Width, Dimension.Height);
+        CollissionElement = new RectF(Position.X, Position.Y, WallBrickDimensions.X, WallBrickDimensions.Y);
+
+
+        //canvas.StrokeColor = Colors.Red;
+        //canvas.DrawRectangle(CollissionElement);
 
         switch (this.Direction)
         {

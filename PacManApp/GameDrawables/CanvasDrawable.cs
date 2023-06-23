@@ -14,6 +14,7 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
     public RectF CanvasDirtyRect { get; set; }
     public ICanvas GameCanvas { get; set; }
 
+    public List<PointF> WallPoints { get; set; }
 
     [ObservableProperty]
     public bool firstRender = true;
@@ -51,10 +52,10 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
             GenerateWalls(dirtyRect);
 
             PacMan.Position.X = WallBrickDimensions.X + PacMan.Dimension.Width / 2;
-            PacMan.Position.Y = (float)(dirtyRect.Height - ((WallBrickDimensions.Y*2)+ PacMan.Dimension.Height));
-            PacMan.Dimension.Height = (float)(WallBrickDimensions.Y*0.85);
-            PacMan.Dimension.Width = (float)(WallBrickDimensions.X*0.85);
-            
+            PacMan.Position.Y = (float)(dirtyRect.Height - ((WallBrickDimensions.Y)+ PacMan.Dimension.Height*2));
+            PacMan.Dimension.Height = (float)(WallBrickDimensions.Y * 0.85);
+            PacMan.Dimension.Width = (float)(WallBrickDimensions.X * 0.85);
+
             FirstRender = false;
             
 
@@ -90,7 +91,7 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
         // draw pacman
 
 
-        PacMan.Render(canvas, dirtyRect);
+        PacMan.Render(canvas, dirtyRect, WallBrickDimensions);
 
     }
 
@@ -131,6 +132,7 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
                                 Dimension=new(cellWidth, cellHeight),
                                 Position=new(x,y)
                             });
+                        //WallPoints.Add(new(x, y));
                         break;
 
                     case 01:
