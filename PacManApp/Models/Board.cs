@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection.Emit;
-
+﻿
 namespace PacManApp.Models;
 
 public class Board
@@ -59,7 +57,16 @@ public class Board
         {
             for (int j = 0; j < columns; j++)
             {
-                flippedArray[i, j] = array[i, columns - 1 - j];
+
+                //flippedArray[j, i] = array[i, j]; // best diagonal
+                flippedArray[i, j] = array[j, i]; // best diagonal
+                //flippedArray[j, i] = array[i, rows-1-j]; // best diagonal and vertical
+
+                //flippedArray[i, j] = array[rows - 1 - i, j];// top-down
+
+                //flippedArray[i, j] = array[i, columns - 1 - j];
+                //flippedArray[rows - 1 - i, columns - 1 - j] = array[i, j];
+                //flippedArray[i,j] = array[i, columns - 1 - j];
             }
         }
 

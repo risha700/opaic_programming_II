@@ -14,8 +14,6 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
     public RectF CanvasDirtyRect { get; set; }
     public ICanvas GameCanvas { get; set; }
 
-    public List<PointF> WallPoints { get; set; }
-
     [ObservableProperty]
     public bool firstRender = true;
 
@@ -33,7 +31,7 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
     public CanvasDrawable()
     {
         Walls = new();
-        Board = new Board();
+        Board = new();
         Kibbles = new();
         Ghosts = new();
         PacMan = new();
@@ -51,10 +49,10 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
         {
             GenerateWalls(dirtyRect);
 
-            PacMan.Position.X = WallBrickDimensions.X + PacMan.Dimension.Width / 2;
+            PacMan.Position.X = ((float)(WallBrickDimensions.X *1.1));
             PacMan.Position.Y = (float)(dirtyRect.Height - ((WallBrickDimensions.Y)+ PacMan.Dimension.Height*2));
-            PacMan.Dimension.Height = (float)(WallBrickDimensions.Y * 0.85);
-            PacMan.Dimension.Width = (float)(WallBrickDimensions.X * 0.85);
+            PacMan.Dimension.Height = (float)(WallBrickDimensions.Y * 0.80);
+            PacMan.Dimension.Width = (float)(WallBrickDimensions.X * 0.80);
 
             FirstRender = false;
             
@@ -67,17 +65,38 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
             canvas.FillColor = w.FillColor;
             canvas.StrokeColor = Colors.Gray;
             canvas.StrokeSize = 2;
-            canvas.SetFillPaint(w.WallPattern, w.Element);
+            //canvas.SetFillPaint(w.WallPattern, w.Element);
             canvas.FillRectangle(w.Element);
             canvas.DrawRectangle(w.Element);
+
+            //// debug only
+            //canvas.FontColor = Colors.Blue;
+            //canvas.FontSize = 12;
+
+            //canvas.DrawString($"({w.Position.X},{ w.Position.Y})", w.Element.Location.X, w.Element.Location.Y, w.Dimension.Width, w.Dimension.Height, HorizontalAlignment.Center, VerticalAlignment.Top);
+            //canvas.DrawString($"({w.MatrixPosition.X},{w.MatrixPosition.Y})", w.Element.Location.X, w.Element.Location.Y, w.Dimension.Width, w.Dimension.Height, HorizontalAlignment.Center, VerticalAlignment.Bottom);
         }
         canvas.ResetStroke();
 
         // draw kibbles
         foreach (var k in Kibbles)
         {
+            //k.Element.Width = WallBrickDimensions.X;
+            //k.Element.Height = WallBrickDimensions.Y;
+
+
+
+            //canvas.FillColor = Colors.Aqua;
+            //canvas.FillRectangle(k.CollissionElement);
+
             canvas.FillColor = k.FillColor;
             canvas.FillEllipse(k.Element);
+            // super debug
+            //k.Dimension.Width = WallBrickDimensions.X;
+            //k.Dimension.Height = WallBrickDimensions.Y;
+            //canvas.FontColor = Colors.Black;
+            //canvas.DrawString($"({k.Position.X},{k.Position.Y})", k.CollissionElement.X, k.CollissionElement.Y, k.CollissionElement.Width, k.CollissionElement.Height, HorizontalAlignment.Left, VerticalAlignment.Top);
+            //canvas.DrawString($"({k.MatrixPosition.X},{k.MatrixPosition.Y})", k.CollissionElement.X, k.CollissionElement.Y, k.CollissionElement.Width, k.CollissionElement.Height, HorizontalAlignment.Left, VerticalAlignment.Bottom);
         }
         canvas.ResetStroke();
 
@@ -130,16 +149,19 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
                             new Wall {
                                 Element=new RectF(x,y,cellWidth, cellHeight),
                                 Dimension=new(cellWidth, cellHeight),
-                                Position=new(x,y)
+                                Position=new(x,y),
+                                MatrixPosition = new(row, col)
                             });
-                        //WallPoints.Add(new(x, y));
+                        
                         break;
 
                     case 01:
-                        var newX = x + (cellWidth / 2);
-                        var newY = y + (cellHeight / 2);
-                        Kibble kibble = new(x: newX, y: newY);
-                        kibble.Element = new RectF(newX, newY, kibble.Dimension.Height, kibble.Dimension.Height);
+                        var centerX = x + (cellWidth / 2);
+                        var centerY = y + (cellHeight / 2);
+                        Kibble kibble = new(x: x, y: y, matrixPos: new(row, col));
+                        kibble.Element = new RectF(centerX, centerY, kibble.Dimension.Height, kibble.Dimension.Height);
+                        
+                        kibble.CollissionElement = new RectF(x, y, cellWidth, cellHeight);
                         Kibbles.Add(kibble);
                         break;
                     case 99:

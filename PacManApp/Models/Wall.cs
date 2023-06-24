@@ -6,13 +6,15 @@ namespace PacManApp.Models;
 public class Wall:GameShape
 {
     public PatternPaint WallPattern;
+    
 
-	public Wall(float w = 40, float h = 40, float x = 0, float y = 0, Color clr = null)
+	public Wall(float w = 40, float h = 40, float x = 0, float y = 0, Color clr = null, Point matrixPos=new())
     {
         Dimension = new(w, h);
         Position = new(x, y); // set it by height of canvas
         FillColor = clr ?? Colors.DarkKhaki;
         WallPattern = WallPaintPattern();
+        MatrixPosition = matrixPos;
     }
 
 internal PatternPaint WallPaintPattern()

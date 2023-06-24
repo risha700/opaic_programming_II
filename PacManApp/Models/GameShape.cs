@@ -9,6 +9,7 @@ public class GameShape
     public PointF Position; // x,y
     public Direction Direction;
     public Color FillColor = Colors.SlateBlue;
+    public Point MatrixPosition;
 
 
     public RectF Element ;
