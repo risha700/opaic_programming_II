@@ -18,7 +18,8 @@ Applied Object oriented pattern to segregate concerns between game models/classe
 - Used a canvas to draw elements on the game window with pre-defined coordinates and dimensions, all code required for the game to operate does not involve any plain xaml markup but created as code behind style from C#
 
 - Used trigonometry and geometry concepts to layout the desired building blocks to fit any screen size
-
+- the idea as showing
+![](./PacManApp/Resources/Images/debug.png)
 
 ## Challenges
 The game is created with .NET MAUI framework which does not support keydown events out of the box, I had to create the logic. However, I opted for drag events and minimize drag criteria by chosen angels in relation to pacman current position.
