@@ -24,7 +24,7 @@ public class CanvasDebug:Attribute
         // Invoke the original method
         // (To be implemented depending on your specific use case)
         // Option 1: Invoke the original method using reflection
-        var methodInfo = typeof(CanvasDrawable).GetMethod("MyDecoratedMethod");
+        var methodInfo = typeof(CanvasDrawable).GetMethod("CanvasDebug");
         methodInfo.Invoke(null, null);
         // Custom logic to be executed after the decorated method
         //k.Dimension.Width = WallBrickDimensions.X;

@@ -48,18 +48,11 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
         if (FirstRender)
         {
             GenerateWalls(dirtyRect);
-            // setup pacman position , size and speed in relation to the generated walls
-            PacMan.Position.X = ((float)(WallBrickDimensions.X *1.1));
-            PacMan.Position.Y = (float)(dirtyRect.Height - ((WallBrickDimensions.Y)+ PacMan.Dimension.Height*2)+2);
-            PacMan.Dimension.Height = (float)(WallBrickDimensions.Y * 0.80);
-            PacMan.Dimension.Width = (float)(WallBrickDimensions.X * 0.80);
-            PacMan.Speed = (int)Math.Floor((PacMan.Dimension.Width * 0.23)) ;
-            
-
+            PositionPacman();
             FirstRender = false;
-            
 
         }
+
 
         // draw maze walls
         foreach (var w in Walls)
@@ -95,8 +88,28 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
 
         PacMan.Render(canvas, dirtyRect, WallBrickDimensions);
 
+
+
     }
 
+    private void PositionPacman()
+    {
+        // setup pacman position , size and speed in relation to the generated walls
+        //PacMan.Position.X = ((float)(WallBrickDimensions.X *1.1));
+        //PacMan.Position.Y = (float)(dirtyRect.Height - ((WallBrickDimensions.Y*2.2))); // NEEDS A TWEAK
+
+        var k = Kibbles.FirstOrDefault();
+        PacMan.Dimension.Height = (float)(WallBrickDimensions.Y * 0.80);
+        PacMan.Dimension.Width = (float)(WallBrickDimensions.X * 0.80);
+        PacMan.Speed = (int)Math.Floor((PacMan.Dimension.Width * 0.23));
+        //PacMan.Speed = 12;
+        PacMan.Position = new(k.CollissionElement.X, (k.CollissionElement.Center.Y) - PacMan.Dimension.Height / 2);
+    }
+
+    public void ResetCanvas()
+    {
+        
+    }
     private void GenerateWalls(RectF dirtyRect)
     {
         
@@ -148,10 +161,12 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
                         Kibbles.Add(kibble);
                         break;
                     case 99:
+                        Random random = new();
                         var xpos = x+10;
                         var ypos = y+10;
                         Ghost ghost = new(x: xpos, y: ypos);
                         ghost.Element = new RectF(xpos, ypos, ghost.Dimension.Height, ghost.Dimension.Height);
+                        ghost.FillColor = (Color)Color.FromRgb(random.Next(0, 255), random.Next(0, 255), (row + col));
                         Ghosts.Add(ghost);
                         break;
 

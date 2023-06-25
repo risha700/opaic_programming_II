@@ -47,11 +47,13 @@ public partial class Game:ObservableObject
         //GameCanvasView.BackgroundColor = Colors.DarkSlateBlue;
         GameCanvasView.Drawable = (IDrawable)canvasDrawable; // set canvas instance
         GameCanvasView.StartInteraction += OnDragAction;
+        
 
 
     }
     private void setupTimers()
     {
+        
         GameTimer = new (TimeSpan.FromMinutes(10));
         GameTimer.Interval = TIMER_ITERVALS;
         GameTimer.Elapsed += new ElapsedEventHandler(OnGameTimerElapsed);
@@ -70,81 +72,142 @@ public partial class Game:ObservableObject
             {
                 if (CanTurn(canvasDrawable.PacMan, SwipeDirection))
                     MovePacMan();
-
+                
             }
+            // move ghosts
+            StartMoveGhosts();
             GameCanvasView.Invalidate();
         });
         
 
     }
 
-    private bool DetectCollision()
+    private void StartMoveGhosts()
     {
-        var maze = canvasDrawable.Board.Matrix;
 
-        var currenScreenX = canvasDrawable.PacMan.Position.X;
-        var currentScreenY = canvasDrawable.PacMan.Position.Y;
 
-        int nextX = (int)(currenScreenX / canvasDrawable.WallBrickDimensions.X);
-        int nextY = (int)(currentScreenY / canvasDrawable.WallBrickDimensions.Y);
-
-        double realNextX = currenScreenX / canvasDrawable.WallBrickDimensions.X;
-        double realNextY = (currentScreenY / canvasDrawable.WallBrickDimensions.Y);
-
-        bool canFit = false;
-
-        
-
-        switch (SwipeDirection)
+        foreach (var g in canvasDrawable.Ghosts)
         {
-            case Direction.Right:
-                canFit = Math.Abs(realNextX - nextX) > 0.4;
-                nextX += 1;
-                break;
-            case Direction.Left:
-                canFit = Math.Abs(realNextX - nextX) > 0.4;
-                nextX -= 1;
-                break;
-            case Direction.Up:
-                //Console.WriteLine($"CanFit In UP {canFit} => {maze[nextX, nextY]} - ({nextX},{nextY}) - X-diff = {realNextX - nextX} Y-diff= {realNextY - nextY:c2}");
-                canFit = Math.Abs(realNextY - nextY) > 0.4;
-                nextY -= 1;
-                break;
-            case Direction.Down:
-                canFit = Math.Abs(realNextY - nextY) > 0.4;
-                nextY += 1;
-                break;
+            // while game is running
+            // check positions
+            if (CanMoveTo(g, g.Direction))
+            {
+                // check here if g in more than half of the side
+
+                Move(g);
+            }
+            else
+            {
+                g.Direction = GenerateRandomDirection(g.Direction);
+
+            }
+            // alert on wall hit
+            // change direction
+            // detect pacman
+
+            //CanMoveTo(g, );
         }
 
-        Console.WriteLine($"NEXT MOVE {canFit} => {maze[nextX, nextY]} - ({nextX},{nextY}) - X-diff = {realNextX - nextX} Y-diff= {realNextY - nextY:c2}");
+        CheckGhostCollidesWithPacman();
 
-        
-        if (nextX < 0 || nextX > maze.GetLength(1) || nextY < 0 || nextY >= maze.GetLength(0))
+        void Move(Ghost g)
         {
-            return false;
+            if (CanMoveTo(g, g.Direction))
+            {
+                switch (g.Direction)
+                {
+                    case Direction.Right:
+                        g.Position.X += canvasDrawable.PacMan.Speed * 2;
+                        g.Position.Y = g.Position.Y;
+                        break;
+                    case Direction.Left:
+                        g.Position.X -= canvasDrawable.PacMan.Speed * 2;
+                        g.Position.Y = g.Position.Y;
+                        break;
+                    case Direction.Up:
+                        g.Position.X = g.Position.X;
+                        g.Position.Y -= canvasDrawable.PacMan.Speed * 2;
+                        break;
+                    case Direction.Down:
+                        g.Position.X = g.Position.X;
+                        g.Position.Y += canvasDrawable.PacMan.Speed * 2;
+                        break;
+                }
+            }
+
         }
-
-
-        if (maze[nextX, nextY] == 10)
-        {
-            // now we need real x and y on screen
-
-            //Console.WriteLine($"Caught 10 {canFit} => {maze[nextX, nextY]} - ({nextX},{nextY}) - X-diff = {realNextX - nextX} Y-diff= {realNextY - nextY:c2}");
-
-
-
-            float nextSxreenX = nextX * canvasDrawable.WallBrickDimensions.X;
-            float nextScreenY = nextY * canvasDrawable.WallBrickDimensions.Y;
-            Console.WriteLine($"Caught 10 nextScreen {nextSxreenX} {nextScreenY} currenScreen {currenScreenX} {currentScreenY}");
-
-            return canFit;
-
-        }
-
-
-        return true;
-
     }
+
+    private void CheckGhostCollidesWithPacman()
+    {
+        if (canvasDrawable.Ghosts.Any(k => canvasDrawable.PacMan.Element.IntersectsWith(k.Element)))
+        {
+            GameTimer.Stop();
+
+            if (GamePlayer.Lives >= 1)
+            {
+                GamePlayer.Lives -= 1;
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await Shell.Current.DisplayAlert("Opps", "You got hit!", "Play again");
+                    ResetGame();
+                    // should fire event to communicate with the content page 
+
+                });
+                
+            }
+            else
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    var startOver = await Shell.Current.DisplayAlert("Opps", "You got hit!", "StartOver", "Quit");
+                    if (startOver)
+                    {
+                        canvasDrawable = new();
+                        setupTimers();
+                        GamePlayer.Score = 0;
+                        SetupCanvas();
+                        GameCanvasView.Invalidate();
+                    }
+                    else
+                    {
+                        App.Current.Quit();
+                    }
+
+                    ResetGame();
+                    // should fire event to communicate with the content page 
+
+                });
+
+            }
+        }
+    }
+
+    private void ResetGame()
+    {
+        canvasDrawable.FirstRender = true; // reset state :(
+        canvasDrawable.Kibbles.Clear();
+        canvasDrawable.Ghosts.Clear();
+        GameCanvasView.Invalidate();
+    }
+
+    private Direction GenerateRandomDirection(Direction oldDirection)
+    {
+        Direction[] allDirections = (Direction[])Enum.GetValues(typeof(Direction));
+
+        Random random = new Random();
+        int randomIndex = random.Next(allDirections.Length);
+
+        Direction randomDirection = allDirections[randomIndex];
+        if (oldDirection == randomDirection)
+        {
+            var d = GenerateRandomDirection(randomDirection);
+            return d;
+        }
+        return randomDirection;
+    }
+
+    
 
     private void OnDragAction(object sender, TouchEventArgs e)
     {
@@ -182,7 +245,7 @@ public partial class Game:ObservableObject
 
         if (OldSwipe != SwipeDirection)
         {
-            Console.WriteLine($"CAN TURN FROM {OldSwipe} TO {SwipeDirection} - {CanTurn(canvasDrawable.PacMan, SwipeDirection)} packman width = {canvasDrawable.PacMan.Element.Width}");
+            //Console.WriteLine($"CAN TURN FROM {OldSwipe} TO {SwipeDirection} - {CanTurn(canvasDrawable.PacMan, SwipeDirection)} packman width = {canvasDrawable.PacMan.Element.Width}");
             OldSwipe = SwipeDirection;
         }
 
@@ -367,7 +430,8 @@ public partial class Game:ObservableObject
         // eat
         if (canvasDrawable.Kibbles.Any(k=>canvasDrawable.PacMan.Element.IntersectsWith(k.Element)))
         {
-            canvasDrawable.Kibbles.Remove(canvasDrawable.Kibbles.Where(x=>x.Element.IntersectsWith(canvasDrawable.PacMan.Element)).Single());
+            var kibbleMatch = canvasDrawable.Kibbles.Where(x => x.Element.IntersectsWith(canvasDrawable.PacMan.Element));
+            canvasDrawable.Kibbles.Remove(kibbleMatch.FirstOrDefault());
 
             MainThread.BeginInvokeOnMainThread(async () =>
             {
@@ -380,7 +444,8 @@ public partial class Game:ObservableObject
 
             // increment score
             GamePlayer.Score += 10;
-            // play sound
+            // check for winner
+
         }
     }
 
