@@ -30,8 +30,6 @@ public partial class Game:ObservableObject
     [ObservableProperty]
     public Direction swipeDirection=Direction.Right;
 
-    //[ObservableProperty]
-    //public int pacmanSpeed; // basically 1/4 of pacman width with fraction 
 
     public Game(GameAudioViewModel audioModel)
 	{
@@ -43,9 +41,6 @@ public partial class Game:ObservableObject
         setupTimers();
         SetupCanvas();
         AudioModel = audioModel;
-
-        //PacmanSpeed = (int)Math.Floor(canvasDrawable.PacMan.Element.Width / 4);
-        Console.WriteLine($"set pPacmanSpeed {canvasDrawable.PacMan.Speed} {canvasDrawable.PacMan.Element.Width / 4}");
     }
     private void SetupCanvas()
     {
@@ -57,7 +52,6 @@ public partial class Game:ObservableObject
     }
     private void setupTimers()
     {
-        //RemainingTime = TimeSpan.FromMinutes(100);
         GameTimer = new (TimeSpan.FromMinutes(10));
         GameTimer.Interval = TIMER_ITERVALS;
         GameTimer.Elapsed += new ElapsedEventHandler(OnGameTimerElapsed);
@@ -72,13 +66,15 @@ public partial class Game:ObservableObject
         //canvasDrawable.GameBall.Speed = 20; // todo: hook it with game level
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            //DetectCollision();
-            
-            MovePacMan();
-            //Console.WriteLine($"timer is running");
+            if (CanMoveTo(canvasDrawable.PacMan, SwipeDirection))
+            {
+                if (CanTurn(canvasDrawable.PacMan, SwipeDirection))
+                    MovePacMan();
+
+            }
             GameCanvasView.Invalidate();
         });
-        //RemainingTime -= TimeSpan.FromMilliseconds(TIMER_ITERVALS);
+        
 
     }
 
@@ -178,17 +174,15 @@ public partial class Game:ObservableObject
         {
             SwipeDirection = Direction.Left;   
         }
-        if (CanMoveTo(SwipeDirection))
+        if (CanMoveTo(canvasDrawable.PacMan, SwipeDirection))
         {
-            if (CanTurn(SwipeDirection))
+            if (CanTurn(canvasDrawable.PacMan, SwipeDirection))
             MovePacMan();
-            // if it hits a wall stop or change direction 
-
         }
 
         if (OldSwipe != SwipeDirection)
         {
-            Console.WriteLine($"CAN TURN FROM {OldSwipe} TO {SwipeDirection} - {CanTurn(SwipeDirection)} packman width = {canvasDrawable.PacMan.Element.Width}");
+            Console.WriteLine($"CAN TURN FROM {OldSwipe} TO {SwipeDirection} - {CanTurn(canvasDrawable.PacMan, SwipeDirection)} packman width = {canvasDrawable.PacMan.Element.Width}");
             OldSwipe = SwipeDirection;
         }
 
@@ -246,11 +240,11 @@ public partial class Game:ObservableObject
         return pressed_angle;
     }
 
-    bool CanMoveTo(Direction direction, int step=1)
+    bool CanMoveTo(dynamic obj, Direction direction, int step=1)
     {
         var maze = Board.FlipArray(canvasDrawable.Board.Matrix); // board is flipped
         //PointF matrix_cords_f = ConvertToMatrixCordsF(canvasDrawable.PacMan.Position.X, canvasDrawable.PacMan.Position.Y);
-        Point matrix_cords = ConvertToMatrixCords((int)canvasDrawable.PacMan.Position.X, (int)canvasDrawable.PacMan.Position.Y);
+        Point matrix_cords = ConvertToMatrixCords((int)obj.Position.X, (int)obj.Position.Y);
         int nextX = (int)matrix_cords.X;
         int nextY = (int)matrix_cords.Y;
         bool canFit = false;
@@ -260,22 +254,22 @@ public partial class Game:ObservableObject
         switch (direction)
         {
             case Direction.Right:
-                canFit = canvasDrawable.PacMan.Element.Center.X - oldCanvasCords.X >= (canvasDrawable.WallBrickDimensions.X / 2) + (canvasDrawable.PacMan.Element.Width / 2) - (canvasDrawable.PacMan.Element.Width / 3);
-                nextX += 1;
+                canFit = obj.Element.Center.X - oldCanvasCords.X >= (canvasDrawable.WallBrickDimensions.X / 2) + (obj.Element.Width / 2) - (obj.Element.Width / 3);
+                nextX += step;
                 break;
             case Direction.Left:
                 
-                canFit = canvasDrawable.PacMan.Element.Center.X - oldCanvasCords.X >= (canvasDrawable.WallBrickDimensions.X / 2) + (canvasDrawable.PacMan.Element.Width / 2) - (canvasDrawable.PacMan.Element.Width / 3);
+                canFit = obj.Element.Center.X - oldCanvasCords.X >= (canvasDrawable.WallBrickDimensions.X / 2) + (obj.Element.Width / 2) - (obj.Element.Width / 3);
 
-                nextX -= 1;
+                nextX -= step;
                 break;
             case Direction.Up:
-                canFit = canvasDrawable.PacMan.Element.Center.Y - oldCanvasCords.Y >= (canvasDrawable.WallBrickDimensions.Y / 2) + (canvasDrawable.PacMan.Element.Height / 2) - (canvasDrawable.PacMan.Element.Height / 3);
-                nextY -= 1;
+                canFit = obj.Element.Center.Y - oldCanvasCords.Y >= (canvasDrawable.WallBrickDimensions.Y / 2) + (obj.Element.Height / 2) - (obj.Element.Height / 3);
+                nextY -= step;
                 break;
             case Direction.Down:
-                canFit = canvasDrawable.PacMan.Element.Center.Y - oldCanvasCords.Y >= (canvasDrawable.WallBrickDimensions.Y / 2) + (canvasDrawable.PacMan.Element.Height / 2) - (canvasDrawable.PacMan.Element.Height / 3);
-                nextY += 1;
+                canFit = obj.Element.Center.Y - oldCanvasCords.Y >= (canvasDrawable.WallBrickDimensions.Y / 2) + (obj.Element.Height / 2) - (obj.Element.Height / 3);
+                nextY += step;
                 break;
         }
         
@@ -284,7 +278,7 @@ public partial class Game:ObservableObject
 
         if (nextX<0|| nextX>maze.GetLength(1) || nextY<0||nextY >= maze.GetLength(0))
         {
-            Console.WriteLine($"Caught in boundary lenght");
+            //Console.WriteLine($"Caught in boundary lenght");
             return false;
         }
 
@@ -296,7 +290,7 @@ public partial class Game:ObservableObject
             //var pac_elm = canvasDrawable.PacMan.Element;
             //var pac_colelm = canvasDrawable.PacMan.CollissionElement;
 
-            Console.WriteLine($"CANFIt {canFit}\n"); 
+            //Console.WriteLine($"CANFIt {canFit}\n"); 
          
             return canFit;
 
@@ -312,20 +306,20 @@ public partial class Game:ObservableObject
     // only allow middle turn
     // casting numbers int and back float makes 4 or 5 steps diffence depending on size of wall block
     // and where is the element placed on the window in relation to the matrix
-    bool CanTurn( Direction direction)
+    bool CanTurn( dynamic obj,  Direction direction)
     {
 
-        Point matrixCords = ConvertToMatrixCords((int)canvasDrawable.PacMan.Position.X, (int)canvasDrawable.PacMan.Position.Y);
+        Point matrixCords = ConvertToMatrixCords((int)obj.Position.X, (int)obj.Position.Y);
         int nextX = (int)matrixCords.X;
         int nextY = (int)matrixCords.Y;
 
-        PointF matrixCordsF = ConvertToMatrixCordsF(canvasDrawable.PacMan.Position.X, canvasDrawable.PacMan.Position.Y);
+        PointF matrixCordsF = ConvertToMatrixCordsF(obj.Position.X, obj.Position.Y);
 
         float realNextX = matrixCordsF.X;
         float realNextY = matrixCordsF.Y;
 
-        Console.WriteLine($"realNextX {realNextX} nextX {nextX} diff={realNextX-nextX:f2} GOING... {SwipeDirection} ");
-        Console.WriteLine($"realNextY {realNextY} nextY {nextY} diff={realNextY - nextY:f2} GOING... {SwipeDirection} ");
+        //Console.WriteLine($"realNextX {realNextX} nextX {nextX} diff={realNextX-nextX:f2} GOING... {SwipeDirection} ");
+        //Console.WriteLine($"realNextY {realNextY} nextY {nextY} diff={realNextY - nextY:f2} GOING... {SwipeDirection} ");
         bool canTurn = false;
 
         // x and y flipped because we changing direction
@@ -374,9 +368,6 @@ public partial class Game:ObservableObject
         if (canvasDrawable.Kibbles.Any(k=>canvasDrawable.PacMan.Element.IntersectsWith(k.Element)))
         {
             canvasDrawable.Kibbles.Remove(canvasDrawable.Kibbles.Where(x=>x.Element.IntersectsWith(canvasDrawable.PacMan.Element)).Single());
-            //// just debugging
-            //Kibble target_food = canvasDrawable.Kibbles.Where(x=>x.Element.IntersectsWith(canvasDrawable.PacMan.Element)).FirstOrDefault();
-            //target_food.FillColor = Colors.Brown;
 
             MainThread.BeginInvokeOnMainThread(async () =>
             {

@@ -48,7 +48,7 @@ public partial class CanvasDrawable : ObservableObject, IDrawable
         if (FirstRender)
         {
             GenerateWalls(dirtyRect);
-
+            // setup pacman position , size and speed in relation to the generated walls
             PacMan.Position.X = ((float)(WallBrickDimensions.X *1.1));
             PacMan.Position.Y = (float)(dirtyRect.Height - ((WallBrickDimensions.Y)+ PacMan.Dimension.Height*2)+2);
             PacMan.Dimension.Height = (float)(WallBrickDimensions.Y * 0.80);
