@@ -38,7 +38,7 @@ private static double LimitTapGesture(float pac_x, float pac_y, float touch_x, f
 
 ```
 
- -  --the collision detection algorithm needs more work to handle the fractional conversion between the x,y window pixels and index matrix integers.--
+ -  ~~the collision detection algorithm needs more work to handle the fractional conversion between the x,y window pixels and index matrix integers.~~
 
 
 
