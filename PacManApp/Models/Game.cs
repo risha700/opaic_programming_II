@@ -11,7 +11,6 @@ namespace PacManApp.Models;
 
 public partial class Game:ObservableObject
 {
-    const int PACMAN_SPEEE= 16;
     private readonly uint TIMER_ITERVALS = 200;
 
 
@@ -31,8 +30,9 @@ public partial class Game:ObservableObject
     [ObservableProperty]
     public Direction swipeDirection=Direction.Right;
 
-    public List<PointF> InteractionTouches = new List<PointF>() { new PointF { } };
-    
+    //[ObservableProperty]
+    //public int pacmanSpeed; // basically 1/4 of pacman width with fraction 
+
     public Game(GameAudioViewModel audioModel)
 	{
         GameCanvasView = new GraphicsView {
@@ -42,14 +42,17 @@ public partial class Game:ObservableObject
 
         setupTimers();
         SetupCanvas();
-
         AudioModel = audioModel;
+
+        //PacmanSpeed = (int)Math.Floor(canvasDrawable.PacMan.Element.Width / 4);
+        Console.WriteLine($"set pPacmanSpeed {canvasDrawable.PacMan.Speed} {canvasDrawable.PacMan.Element.Width / 4}");
     }
     private void SetupCanvas()
     {
         //GameCanvasView.BackgroundColor = Colors.DarkSlateBlue;
         GameCanvasView.Drawable = (IDrawable)canvasDrawable; // set canvas instance
         GameCanvasView.StartInteraction += OnDragAction;
+
 
     }
     private void setupTimers()
@@ -155,9 +158,7 @@ public partial class Game:ObservableObject
         var touch_x = e.Touches[0].X;
         var touch_y = e.Touches[0].Y;
 
-        InteractionTouches.Add(e.Touches[0]);
-
-        var OldSwipe = SwipeDirection;
+        Direction OldSwipe = SwipeDirection;
 
         double pressed_angle = LimitTapGesture(pac_x, pac_y, touch_x, touch_y);
 
@@ -179,6 +180,7 @@ public partial class Game:ObservableObject
         }
         if (CanMoveTo(SwipeDirection))
         {
+            if (CanTurn(SwipeDirection))
             MovePacMan();
             // if it hits a wall stop or change direction 
 
@@ -186,8 +188,8 @@ public partial class Game:ObservableObject
 
         if (OldSwipe != SwipeDirection)
         {
-            //Console.WriteLine($"CAN TURN {SwipeDirection} - {CanTurn(SwipeDirection)}");
-            //OldSwipe = SwipeDirection;
+            Console.WriteLine($"CAN TURN FROM {OldSwipe} TO {SwipeDirection} - {CanTurn(SwipeDirection)} packman width = {canvasDrawable.PacMan.Element.Width}");
+            OldSwipe = SwipeDirection;
         }
 
 
@@ -253,36 +255,26 @@ public partial class Game:ObservableObject
         int nextY = (int)matrix_cords.Y;
         bool canFit = false;
         PointF oldCanvasCords = ConvertToCanvasCords(nextX, nextY);
-
+        
+        
         switch (direction)
         {
             case Direction.Right:
-                //canFit = matrix_cords_f.X - matrix_cords.X > 0.25;
-                canFit = canvasDrawable.PacMan.Element.Center.X - oldCanvasCords.X >= (canvasDrawable.WallBrickDimensions.X / 2) + canvasDrawable.PacMan.Element.Width / 2;
-                //if(canFit)
+                canFit = canvasDrawable.PacMan.Element.Center.X - oldCanvasCords.X >= (canvasDrawable.WallBrickDimensions.X / 2) + (canvasDrawable.PacMan.Element.Width / 2) - (canvasDrawable.PacMan.Element.Width / 3);
                 nextX += 1;
                 break;
             case Direction.Left:
+                
+                canFit = canvasDrawable.PacMan.Element.Center.X - oldCanvasCords.X >= (canvasDrawable.WallBrickDimensions.X / 2) + (canvasDrawable.PacMan.Element.Width / 2) - (canvasDrawable.PacMan.Element.Width / 3);
 
-                //canFit = canvasDrawable.PacMan.Element.Center.X >= Math.Abs( canvasDrawable.WallBrickDimensions.X- oldCanvasCords.X);
-                canFit = canvasDrawable.PacMan.Element.Center.X - oldCanvasCords.X >= ((canvasDrawable.WallBrickDimensions.X/2)+ canvasDrawable.PacMan.Element.Width/2)-8;
-                //canFit = matrix_cords_f.X - matrix_cords.X > 0.25;
                 nextX -= 1;
-
-                //if (canFit)
                 break;
             case Direction.Up:
-                //canFit = Math.Abs(matrix_cords_f.Y - matrix_cords.Y ) > 0.25;
-                canFit = canvasDrawable.PacMan.Element.Center.Y - oldCanvasCords.Y >= (canvasDrawable.WallBrickDimensions.Y / 2) + canvasDrawable.PacMan.Element.Height / 2;
-
-                //Console.WriteLine($"CanFit In UP {canFit} => {maze[nextX, nextY]} - ({nextX},{nextY}) - X-diff = {realNextX - nextX:f2} Y-diff= {realNextY - nextY:f2}");
-                //if (canFit)
+                canFit = canvasDrawable.PacMan.Element.Center.Y - oldCanvasCords.Y >= (canvasDrawable.WallBrickDimensions.Y / 2) + (canvasDrawable.PacMan.Element.Height / 2) - (canvasDrawable.PacMan.Element.Height / 3);
                 nextY -= 1;
                 break;
             case Direction.Down:
-                //canFit = matrix_cords_f.Y - matrix_cords.Y > 0.25;
-                canFit = canvasDrawable.PacMan.Element.Center.Y - oldCanvasCords.Y >= (canvasDrawable.WallBrickDimensions.Y / 2) + canvasDrawable.PacMan.Element.Height / 2;
-                //if (canFit)
+                canFit = canvasDrawable.PacMan.Element.Center.Y - oldCanvasCords.Y >= (canvasDrawable.WallBrickDimensions.Y / 2) + (canvasDrawable.PacMan.Element.Height / 2) - (canvasDrawable.PacMan.Element.Height / 3);
                 nextY += 1;
                 break;
         }
@@ -322,35 +314,30 @@ public partial class Game:ObservableObject
     // and where is the element placed on the window in relation to the matrix
     bool CanTurn( Direction direction)
     {
-        
 
-        var currenScreenX = canvasDrawable.PacMan.Position.X;
-        var currentScreenY = canvasDrawable.PacMan.Position.Y;
+        Point matrixCords = ConvertToMatrixCords((int)canvasDrawable.PacMan.Position.X, (int)canvasDrawable.PacMan.Position.Y);
+        int nextX = (int)matrixCords.X;
+        int nextY = (int)matrixCords.Y;
 
-        int nextX = (int)(currenScreenX / canvasDrawable.WallBrickDimensions.X);
-        int nextY = (int)(currentScreenY / canvasDrawable.WallBrickDimensions.Y);
+        PointF matrixCordsF = ConvertToMatrixCordsF(canvasDrawable.PacMan.Position.X, canvasDrawable.PacMan.Position.Y);
 
-        double realNextX = currenScreenX / canvasDrawable.WallBrickDimensions.X;
-        double realNextY = currentScreenY / canvasDrawable.WallBrickDimensions.Y;
+        float realNextX = matrixCordsF.X;
+        float realNextY = matrixCordsF.Y;
 
+        Console.WriteLine($"realNextX {realNextX} nextX {nextX} diff={realNextX-nextX:f2} GOING... {SwipeDirection} ");
+        Console.WriteLine($"realNextY {realNextY} nextY {nextY} diff={realNextY - nextY:f2} GOING... {SwipeDirection} ");
         bool canTurn = false;
 
+        // x and y flipped because we changing direction
         switch (direction)
         {
-            case Direction.Right:
-                canTurn = realNextX - nextX < 0.2;
+            case Direction.Right or Direction.Left:
+                canTurn = realNextY - nextY <= 0.21;
                 break;
-            case Direction.Left:
-                canTurn = realNextX - nextX < 0.2;
-                break;
-            case Direction.Up:
-                canTurn = realNextY - nextY < 0.2;
-                break;
-            case Direction.Down:
-                canTurn = realNextY - nextY < 0.2;
+            case Direction.Up or Direction.Down:
+                canTurn = realNextX - nextX <= 0.21;
                 break;
         }
-
         return canTurn;
     }
 
@@ -366,30 +353,30 @@ public partial class Game:ObservableObject
         switch (SwipeDirection)
         {
             case Direction.Right:
-                canvasDrawable.PacMan.Position.X += PACMAN_SPEEE;
+                canvasDrawable.PacMan.Position.X += canvasDrawable.PacMan.Speed;
                 canvasDrawable.PacMan.Position.Y = canvasDrawable.PacMan.Position.Y;
                 break;
             case Direction.Left:
-                canvasDrawable.PacMan.Position.X -= PACMAN_SPEEE;
+                canvasDrawable.PacMan.Position.X -= canvasDrawable.PacMan.Speed;
                 canvasDrawable.PacMan.Position.Y = canvasDrawable.PacMan.Position.Y;
                 break;
             case Direction.Up:
                 canvasDrawable.PacMan.Position.X = canvasDrawable.PacMan.Position.X;
-                canvasDrawable.PacMan.Position.Y -= PACMAN_SPEEE;
+                canvasDrawable.PacMan.Position.Y -= canvasDrawable.PacMan.Speed;
                 break;
             case Direction.Down:
                 canvasDrawable.PacMan.Position.X = canvasDrawable.PacMan.Position.X;
-                canvasDrawable.PacMan.Position.Y += PACMAN_SPEEE;
+                canvasDrawable.PacMan.Position.Y += canvasDrawable.PacMan.Speed;
                 break;
         }
 
         // eat
         if (canvasDrawable.Kibbles.Any(k=>canvasDrawable.PacMan.Element.IntersectsWith(k.Element)))
         {
-            //canvasDrawable.Kibbles.Remove(canvasDrawable.Kibbles.Where(x=>x.Element.IntersectsWith(canvasDrawable.PacMan.Element)).Single());
-            // just debugging
-            Kibble target_food = canvasDrawable.Kibbles.Where(x=>x.Element.IntersectsWith(canvasDrawable.PacMan.Element)).FirstOrDefault();
-            target_food.FillColor = Colors.Brown;
+            canvasDrawable.Kibbles.Remove(canvasDrawable.Kibbles.Where(x=>x.Element.IntersectsWith(canvasDrawable.PacMan.Element)).Single());
+            //// just debugging
+            //Kibble target_food = canvasDrawable.Kibbles.Where(x=>x.Element.IntersectsWith(canvasDrawable.PacMan.Element)).FirstOrDefault();
+            //target_food.FillColor = Colors.Brown;
 
             MainThread.BeginInvokeOnMainThread(async () =>
             {

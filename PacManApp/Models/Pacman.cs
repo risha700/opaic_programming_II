@@ -8,15 +8,18 @@ public class Pacman:GameShape
 {
     public bool IsEating = false;
     public RectF CollissionElement;
+    public int Speed;
+
     //public PathF Mouth { get; set; }
 
-	public Pacman(float w = 30, float h = 30, float x = 0, float y = 0, Color clr = null)
+    public Pacman(float w = 30, float h = 30, float x = 0, float y = 0, Color clr = null)
     {
 
         Dimension = new(w, h);
         Position = new(x, y); // set it by height of canvas
-        FillColor = clr ?? Colors.Yellow;
+        FillColor = clr ?? Colors.Gold;
         Direction = Direction.Right;
+        Speed = 10;
         
     }
 

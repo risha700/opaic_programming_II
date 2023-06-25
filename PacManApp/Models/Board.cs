@@ -73,5 +73,13 @@ public class Board
         return flippedArray;
     }
 
+    public void DebugBoard(ICanvas canvas, Wall w)
+    {
+        //// debug only
+        canvas.FontColor = Colors.Blue;
+        canvas.FontSize = 12;
+        canvas.DrawString($"({w.Position.X},{w.Position.Y})", w.Element.Location.X, w.Element.Location.Y, w.Dimension.Width, w.Dimension.Height, HorizontalAlignment.Center, VerticalAlignment.Top);
+        canvas.DrawString($"({w.MatrixPosition.X},{w.MatrixPosition.Y})", w.Element.Location.X, w.Element.Location.Y, w.Dimension.Width, w.Dimension.Height, HorizontalAlignment.Center, VerticalAlignment.Bottom);
+    }
 }
 

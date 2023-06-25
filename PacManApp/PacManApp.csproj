@@ -75,6 +75,7 @@
 	  <None Remove="Resources\Raw\gameover.wav" />
 	  <None Remove="Resources\Raw\fireball.wav" />
 	  <None Remove="Resources\Images\include.png" />
+	  <None Remove="Resources\Images\screen_shot.png" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="GameDrawables\" />
@@ -89,6 +90,7 @@
 	  <BundleResource Include="Resources\Raw\gameover.wav" />
 	  <BundleResource Include="Resources\Raw\fireball.wav" />
 	  <BundleResource Include="Resources\Images\include.png" />
+	  <BundleResource Include="Resources\Images\screen_shot.png" />
 	</ItemGroup>
 	<ItemGroup>
 	  <MauiAsset Update="Resources\Raw\hit.wav">
